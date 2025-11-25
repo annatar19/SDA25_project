@@ -9,6 +9,7 @@ pip install -r requirements.txt
 ```
 When adding packages do:
 ```
+pip install numpy # For instance
 pip freeze > requirements.txt
 ```
 But remember to do `source .venv/bin/activate` beforehand so the `requirements.txt` does not get overwritten with local packages.
