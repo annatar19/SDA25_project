@@ -1,6 +1,8 @@
 # macOS meta data files
 .DS_Store
 
+code/height_analysis/filtered_heights
+
 # LibreOffice lock files
 .~lock.*#
 
