@@ -22,9 +22,15 @@ Then I want to get a correlational coefficient (Peason's r) that could be use to
     based on a single players ranking, or the ranking of both players combined.
 
 
+
+
+
+
 FIRST ANALYSIS - Difference score
 The first, and likely most useable predictor to be testing is the player ranking difference (PRD) score.
 The PRD score for a matchup is defined as the absolute difference in ranking points.
+The outcome will be P(player wins | they have higher ranking points). 
+I will take the absolute difference in score, and classify them 1 or 0 based on if the higher ranked player won that match.
 
 The analysis will be done using logistic regression.
 
@@ -66,11 +72,12 @@ Questions:
 How deep do I have to go into the assumptions:
     - tourney influence (independence)
     - player matchups (collinearity)
+Hoe omgaan met hetzelfde aantal punten voor high rank an low rank
 
 
 
 Start with simple model
 
-handige link, logistic regression uitvoering -> https://www.youtube.com/watch?v=HYcXgN9HaTM 
+handige link, logistic regression uitvoering -> https://www.youtube.com/watch?v=HYcXgN9HaTM , https://www.datarmatics.com/data-science/how-to-perform-logistic-regression-in-pythonstep-by-step/ 
 Assume that all assumptions are met.
 Simple logistic model for predicting match outcome.
