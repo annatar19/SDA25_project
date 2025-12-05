@@ -117,6 +117,7 @@ def experiment2(tennis_df):
 
     log_reg(df, "dif_score", "playerA_win")
 
+# EXPERIMENT 3
 def experiment3(tennis_df):
     """
     Third experiment. Now instead of using absolute difference scores between playerA and playerB, the relative difference is used: (pA_score - pB_score) / pA_score.
