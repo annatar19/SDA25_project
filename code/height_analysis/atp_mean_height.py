@@ -70,6 +70,8 @@ check = data.groupby("id").agg(
 # conflicts, ids with multiple names or heights.
 conflicts = check[(check["n_names"] > 1) | (check["n_heights"] > 1)]
 
+conflicts_idx = conflicts.index  # pyright: ignore
+
 if conflicts.size > 0:
     print(f"There are {conflicts.size} conflicts:")
     # print(conflicts.head(20))  # pyright: ignore[reportAttributeAccessIssue]
@@ -86,9 +88,10 @@ no_conflict_ids = check[
 # needed because of the duplicate ids of players that played in multiple
 # matches.
 players_no_conflict = data[
-    data["id"].isin(no_conflict_ids)  # pyright: ignore
+    ~data["id"].isin(conflicts_idx)  # pyright: ignore
 ].drop_duplicates(subset=["id"])
 
 
-print(players_no_conflict["ht"].mean())
-print(players_no_conflict["ht"].std())
+# print(players_no_conflict["ht"].mean())
+print(players_no_conflict.agg({"ht": "mean", "ht": "std"}))
+# print(players_no_conflict["ht"].std())
