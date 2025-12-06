@@ -1,5 +1,6 @@
 from pathlib import Path
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -28,9 +29,9 @@ def main():
 
         sub = df[["year", mean_col, std_col]].dropna()
 
-        # Commented the errorbar code as it turned the graph into a mess. A
-        # todo perhaps.
-        plt.errorbar(
+        # Commented the errorbar code as it turned the graph into a mess.
+        # Instead they are plotted in a separate plot.
+        eb = plt.errorbar(
             sub["year"],
             sub[mean_col],
             # yerr=sub[std_col],
@@ -40,14 +41,67 @@ def main():
             # errorevery=5,
             label=t,
         )
+        if len(sub) >= 2:
+            x = sub["year"].to_numpy(dtype=float)
+            y = sub[mean_col].to_numpy(dtype=float)
+            slope, intercept = np.polyfit(x, y, 1)
+            y_hat = slope * x + intercept
+            # Same color as it's graph, the graph before was a mess.
+            plt.plot(
+                x,
+                y_hat,
+                "--",
+                color=eb.lines[0].get_color(),
+                alpha=0.8,
+                # label=f"{t} mean trend",
+            )
 
     plt.xlabel("Year")
     plt.ylabel("Height mean (cm)")
-    plt.title("Mean height by year")
+    plt.title("Height std by year along with the trend")
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.savefig(f"{OUTPUT_DIR}/height_stats_plot.png")
+    plt.savefig(f"{OUTPUT_DIR}/height_mean_plot.png")
+    plt.figure(figsize=(10, 8))
+
+    for t in types:
+        mean_col = f"mean_{t}"
+        std_col = f"std_{t}"
+
+        sub = df[["year", mean_col, std_col]].dropna()
+
+        eb = plt.errorbar(
+            sub["year"],
+            sub[std_col],
+            fmt="o-",
+            capsize=2,
+            alpha=0.6,
+            label=t,
+        )
+
+        if len(sub) >= 2:
+            x = sub["year"].to_numpy(dtype=float)
+            y = sub[std_col].to_numpy(dtype=float)
+            slope, intercept = np.polyfit(x, y, 1)
+            y_hat = slope * x + intercept
+
+            plt.plot(
+                x,
+                y_hat,
+                "--",
+                color=eb.lines[0].get_color(),
+                alpha=0.8,
+                # label=f"{t} std trend",
+            )
+
+    plt.xlabel("Year")
+    plt.ylabel("Height std (cm)")
+    plt.title("Height std by year along with the trend")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"{OUTPUT_DIR}/height_std.png")
     return 0
 
 
