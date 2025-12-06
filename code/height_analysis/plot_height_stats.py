@@ -41,20 +41,19 @@ def main():
             # errorevery=5,
             label=t,
         )
-        if len(sub) >= 2:
-            x = sub["year"].to_numpy(dtype=float)
-            y = sub[mean_col].to_numpy(dtype=float)
-            slope, intercept = np.polyfit(x, y, 1)
-            y_hat = slope * x + intercept
-            # Same color as it's graph, the graph before was a mess.
-            plt.plot(
-                x,
-                y_hat,
-                "--",
-                color=eb.lines[0].get_color(),
-                alpha=0.8,
-                # label=f"{t} mean trend",
-            )
+        x = sub["year"].to_numpy(dtype=float)
+        y = sub[mean_col].to_numpy(dtype=float)
+        slope, intercept = np.polyfit(x, y, 1)
+        y_hat = slope * x + intercept
+        # Same color as it's graph, the graph before was a mess.
+        plt.plot(
+            x,
+            y_hat,
+            "--",
+            color=eb.lines[0].get_color(),
+            alpha=0.8,
+            # label=f"{t} mean trend",
+        )
 
     plt.xlabel("Year")
     plt.ylabel("Height mean (cm)")
@@ -80,20 +79,19 @@ def main():
             label=t,
         )
 
-        if len(sub) >= 2:
-            x = sub["year"].to_numpy(dtype=float)
-            y = sub[std_col].to_numpy(dtype=float)
-            slope, intercept = np.polyfit(x, y, 1)
-            y_hat = slope * x + intercept
+        x = sub["year"].to_numpy(dtype=float)
+        y = sub[std_col].to_numpy(dtype=float)
+        slope, intercept = np.polyfit(x, y, 1)
+        y_hat = slope * x + intercept
 
-            plt.plot(
-                x,
-                y_hat,
-                "--",
-                color=eb.lines[0].get_color(),
-                alpha=0.8,
-                # label=f"{t} std trend",
-            )
+        plt.plot(
+            x,
+            y_hat,
+            "--",
+            color=eb.lines[0].get_color(),
+            alpha=0.8,
+            # label=f"{t} std trend",
+        )
 
     plt.xlabel("Year")
     plt.ylabel("Height std (cm)")
