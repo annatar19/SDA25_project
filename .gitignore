@@ -4,6 +4,8 @@
 code/height_analysis/filtered_heights
 code/height_analysis/filtered_heights_classes
 code/height_analysis/height_stats
+code/height_analysis/filtered_heights_diff/
+code/height_analysis/filtered_heights_diff_stats/
 
 # LibreOffice lock files
 .~lock.*#
