@@ -57,7 +57,7 @@ def main():
 
     plt.xlabel("Year")
     plt.ylabel("Height mean (cm)")
-    plt.title("Height std by year along with the trend")
+    plt.title("Height mean by year along with the trend")
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
