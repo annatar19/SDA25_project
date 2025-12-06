@@ -9,23 +9,12 @@ def load_tennis_data(
     usecols=None,
 ):
     """
-    Load ATP match CSV files matching the supplied patterns and columns.
-
-    Parameters
-    ----------
-    path_pattern : str
-        Path for locating csv files.
-
-    year_pattern : str
-        Regex pattern that filters which 'atp_matches_XXXX.csv' files to load.
-
-    usecols : list or None
-        Columns to load from each CSV. If None, all columns will be loaded.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Concatenated dataset containing all matching CSVs.
+    path_pattern - str
+        Path to the csv's
+    regex_pattern - str
+        Regex pattern that filters to 'atp_matches_XXXX.csv' files to load
+    usecols - list
+        Cols to load from each csv. If empty, all cols will be loaded
     """
 
     ATP_PATH = path_pattern
@@ -47,7 +36,7 @@ def load_tennis_data(
             csvs.append(df)
 
     if not csvs:
-        raise ValueError(f"No matching CSV files found for path pattern: {path_pattern} or regex pattern: {regex_pattern}")
+        raise ValueError(f"no matching csv files, make sure the regex or path pattern is correct")
     
     # All the .csv into 1, the loaded columns that is.
     return pd.concat(csvs, ignore_index=True)
