@@ -1,4 +1,9 @@
+# macOS meta data files
 .DS_Store
 
 # LibreOffice lock files
 .~lock.*#
+
+# Python cache files
+__pycache__/
+*.pyc
