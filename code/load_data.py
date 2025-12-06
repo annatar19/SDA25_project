@@ -14,7 +14,7 @@ def load_tennis_data(
     regex_pattern - str
         Regex pattern that filters to 'atp_matches_XXXX.csv' files to load
     usecols - list
-        Cols to load from each csv. If empty, all cols will be loaded
+        columns to load from each csv. If empty, all cols will be loaded
     """
 
     ATP_PATH = path_pattern
@@ -24,7 +24,7 @@ def load_tennis_data(
 
     # Will make a list of strings like:
     # '../data/tennis_atp/atp_matches_qual_chall_1996.csv'
-    atp_csv_fns = glob.glob(path_pattern)
+    atp_csv_fns = glob.glob(ATP_PATH)
 
     csvs = []
     for fn in atp_csv_fns:
@@ -36,7 +36,7 @@ def load_tennis_data(
             csvs.append(df)
 
     if not csvs:
-        raise ValueError(f"no matching csv files, make sure the regex or path pattern is correct")
-    
+        raise ValueError("no matching csv files, make sure the regex or path pattern is correct")
+
     # All the .csv into 1, the loaded columns that is.
     return pd.concat(csvs, ignore_index=True)
