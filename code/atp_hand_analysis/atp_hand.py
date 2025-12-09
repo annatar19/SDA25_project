@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data/tennis_atp_data/unaltered_data"
 
-# change these for different year analysis rgane
+# change these for different year analysis range
 YEAR_START = 1991
 YEAR_END = 2024
 
@@ -46,6 +46,7 @@ USECOLS = [
 def list_year_files(dir_path=DATA_DIR, y0=YEAR_START, y1=YEAR_END):
     files = glob.glob(str(dir_path / "atp_matches_*.csv"))
     rx = re.compile(r"atp_matches_(\d{4})\.csv$")
+
     out = []
     for f in files:
         m = rx.search(Path(f).name)
@@ -54,6 +55,7 @@ def list_year_files(dir_path=DATA_DIR, y0=YEAR_START, y1=YEAR_END):
             if y0 <= y <= y1:
                 out.append((y, f))
     out.sort()
+
     return [f for _, f in out]
 
 
@@ -61,6 +63,7 @@ def list_year_files(dir_path=DATA_DIR, y0=YEAR_START, y1=YEAR_END):
 def normalize_hand(s):
     s = s.astype(str).str.strip().str.upper()
     s = s.replace({"": np.nan, "U": np.nan})
+
     return s.where(s.isin(["L", "R"]), np.nan)
 
 
@@ -213,7 +216,7 @@ def plot_hand_winrates(overall_hand, matchup_rates, matchup_adj):
     axs[2].grid(alpha=0.3, linestyle="--")
     _annotate(axs[2])
 
-    plt.suptitle("ATP Handedness Win Rates (1991–2024)")
+    plt.suptitle(f"ATP Handedness Win Rates ({YEAR_START}–{YEAR_END})")
     plt.tight_layout()
     plt.show()
 
@@ -226,11 +229,6 @@ def main():
     matchup = winrates_by_matchup(pov)
     rank_matchup = rank_controlled_by_matchup(pov)
 
-    # print("Overall win rate by hand:\n", overall.round(4))
-    # print("\nMatchup win rates (raw):\n", matchup.round(4))
-    # print("\nMatchup win rates (rank-controlled):\n", adj.round(4))
-
-    # plot
     plot_hand_winrates(overall, matchup, rank_matchup)
 
 
