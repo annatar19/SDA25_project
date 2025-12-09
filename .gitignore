@@ -7,6 +7,11 @@ code/height_analysis/height_stats
 code/height_analysis/filtered_heights_diff/
 code/height_analysis/filtered_heights_diff_stats/
 
+code/age_analysis/age_delta_mean_plots
+code/age_analysis/age_heatmaps
+code/age_analysis/filtered_ages
+code/age_analysis/logit_csv
+
 # LibreOffice lock files
 .~lock.*#
 
