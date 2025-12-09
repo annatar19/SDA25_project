@@ -1,3 +1,23 @@
+# atp_hand.py
+#
+# Small script for analysing ATP tennis match data by dominant hand.
+# Loads all the yearly match CSV files turn each match into two player-
+# perspective rows (winner and loser), and then calculates:
+# - overall win rates for left/right handed players
+# - win rates of each matchup type (RvsR, RvsL, LvsR, LvsL)
+# - a very rough rank-controlled version using rank difference bins
+#
+# Graph plot is saved under graphs folder
+# - Results seem to show any meaningful difference in win rates between
+# left handed and right handed players. The raw matchups are already super
+# close with a slight (~2% disavantage for left handed players) this could be
+# because of a rank bias, where there are more right handed players, therefore
+# left handed players play against more high ranked players. Even taking this
+# bias into account and recalculating winrates with a rough rank difference
+# using bins, we see that it almost equals out to 50/50. Showing that there is
+# no meaninfull difference in the dominant hand winrates of a player.
+
+
 import pandas as pd
 import numpy as np
 import glob
