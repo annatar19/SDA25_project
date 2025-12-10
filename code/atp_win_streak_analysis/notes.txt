@@ -1,3 +1,28 @@
-For the win streak analysis first the win streak needs to be calculated.
+OVERALL NOTE
+I THINK WE SHOULD DO ALL OF OUR ANALYSIS FOR DIFFERENT LEVELS OF TENNIS ONCE AS WELL. DIFFERENCES IN THESE LEVELS COULD MATTER, AND IT WOULD BE A NICE ADDITION TO THE PREDICTION MODEL
 
-This will be done based on winner_player_id and date
+
+# Experiment 1
+# This experiment will analyse any direct correlation between winning streak with either winning or losing a game.
+# It is expected that a high win streak will correlate to a higher probability of winning.
+
+# Experiment 2
+# For the second experiment I am curious about the probability of winning a match, given that you are on a certain win streak.
+# For this I will calculate proportions of matches won on a certain win streak. This will give a nice plot hopefully, showing increased odds for higher streaks.
+
+Reflection on experiment 1 and 2
+In experiment 1 very low correlation was found between the win streak and match outcome, while in experiment 2 we 
+
+
+
+
+
+
+
+It is important to note that win streaks might be very tournament dependent. It might be wise to seperate winstreaks in tournaments from regular winstreaks, 
+since you cannot go on a losing streak in a tournament.
+
+QUESTIONS
+For experiment two you find that there are a couple of very high winstreaks, probably like two or three, 
+causing low probabilities for winning when on a high streak. How to fit a line through this, or deal with this. 
+Should I get rid of the datapoints.
