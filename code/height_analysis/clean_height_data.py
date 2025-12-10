@@ -77,7 +77,7 @@ if __name__ == "__main__":
             # way. But with our data this will only happen to empty entries.
             df["winner_ht"] = pd.to_numeric(df["winner_ht"], errors="coerce")
             df["loser_ht"] = pd.to_numeric(df["loser_ht"], errors="coerce")
-            df.dropna(subset=["winner_ht", "loser_ht"])
+            df.dropna(subset=["winner_ht", "loser_ht"], inplace=True)
             # Only select rows where both the winner and loser had heights
             # above the minimum.
             df = df[
