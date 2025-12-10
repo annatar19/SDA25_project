@@ -6,6 +6,8 @@ code/height_analysis/filtered_heights_classes
 code/height_analysis/height_stats
 code/height_analysis/filtered_heights_diff/
 code/height_analysis/filtered_heights_diff_stats/
+code/height_analysis/height_heatmaps/
+code/height_analysis/logit_csv/
 
 code/age_analysis/age_delta_mean_plots
 code/age_analysis/age_heatmaps
