@@ -79,13 +79,9 @@ def write_output(df, type_str):
     p = Path(path)
     p.mkdir(parents=True, exist_ok=True)
     out_fn = f"{path}/height_{type_str}_stats.csv"
-    wide = df.pivot(
-        index="year",
-        columns="match_type",
-        values=["mean", "ci_lower", "ci_upper", "std"],
-    ).sort_index()
+    wide = df.set_index("year")[["mean", "ci_lower", "ci_upper", "std"]].sort_index()
 
-    wide.columns = [f"{stat}_{mt}" for stat, mt in wide.columns]
+    # wide.columns = [f"{stat}_{mt}" for stat, mt in wide.columns]
 
     wide.to_csv(out_fn, index=True)
 
