@@ -1,7 +1,9 @@
 from pathlib import Path
+import numpy as np
 import re
 import pandas as pd
 import shutil
+from scipy import stats
 
 
 INPUT_DIR = "filtered_heights/"
@@ -41,10 +43,27 @@ def combine_winners_losers(df):
 def get_row(df, match):
     year = int(match.group("year"))
     match_type = match.group("match_type")
-    mean_ht = df["ht"].mean()
-    # Sample std by default, so ddof=1
-    std_ht = df["ht"].std()
-    return {"year": year, "match_type": match_type, "mean": mean_ht, "std": std_ht}
+    # One height per id, so that a player playing in 3 matches does not get
+    # interpreted as 3 players with the same height.
+    players = df.drop_duplicates(subset="id")
+    mean_ht = players["ht"].mean()
+    std_ht = players["ht"].std(ddof=1)
+    n = players.shape[0]
+    # https://en.wikipedia.org/wiki/Confidence_interval#Methods_of_derivation
+    standard_error = std_ht / np.sqrt(n)
+    alpha = 0.05
+    t_critical = stats.t.ppf(1 - alpha / 2, df=n - 1)
+    ci_lower = mean_ht - t_critical * standard_error
+    ci_upper = mean_ht + t_critical * standard_error
+
+    return {
+        "year": year,
+        "match_type": match_type,
+        "mean": mean_ht,
+        "ci_lower": ci_lower,
+        "ci_upper": ci_upper,
+        "std": std_ht,
+    }
 
 
 # To clear the output folder.
@@ -55,17 +74,17 @@ def clear_output():
     return p
 
 
-def write_output(df):
-    clear_output()
+def write_output(df, type_str):
     path = f"{OUTPUT_DIR}/"
     p = Path(path)
     p.mkdir(parents=True, exist_ok=True)
-    out_fn = f"{path}/height_stats.csv"
+    out_fn = f"{path}/height_{type_str}_stats.csv"
     wide = df.pivot(
-        index="year", columns="match_type", values=["mean", "std"]
+        index="year",
+        columns="match_type",
+        values=["mean", "ci_lower", "ci_upper", "std"],
     ).sort_index()
 
-    # Flatten columns so CSV has simple headers
     wide.columns = [f"{stat}_{mt}" for stat, mt in wide.columns]
 
     wide.to_csv(out_fn, index=True)
@@ -79,25 +98,42 @@ def main():
         )
         return 1
 
+    clear_output()
     # Should not be needed for filtering, but serves as a small sanity check.
     # It is also conventient to extract the fields from the name.
     p_pattern = re.compile(
         r"filtered_heights/(?P<year>\d{4})/ht_(?P<match_type>[\w_]+).csv"
     )
     # To store the output rows.
-    rows = []
+    future_rows = []
+    quall_rows = []
+    singles_rows = []
     # Will list every .csv in filtered_heights.
     for p in data_path.rglob("*.csv"):
         match = re.search(p_pattern, str(p))
         # Should always be true unless filtered_heights was manually altered,
         # but this is cleaner.
         if match:
+            print(f"Processing: {p}…")
             df = pd.read_csv(p)
             df = combine_winners_losers(df)
-            rows.append(get_row(df, match))
+            row = get_row(df, match)
+            if row["match_type"] == "futures":
+                future_rows.append(row)
+            elif row["match_type"] == "qual_chall":
+                quall_rows.append(row)
+            elif row["match_type"] == "singles":
+                singles_rows.append(row)
+            else:
+                print(f"Unknown match type: {row["match_type"]}")
+                return 1
 
-    out = pd.DataFrame(rows)
-    write_output(out)
+    future_df = pd.DataFrame(future_rows)
+    quall_df = pd.DataFrame(quall_rows)
+    singles_df = pd.DataFrame(singles_rows)
+    write_output(future_df, "futures")
+    write_output(quall_df, "quall")
+    write_output(singles_df, "singles")
     return 0
 
 
