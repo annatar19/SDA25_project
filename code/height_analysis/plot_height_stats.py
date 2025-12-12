@@ -1,11 +1,14 @@
 from pathlib import Path
 import pandas as pd
 import numpy as np
+import re
 import matplotlib.pyplot as plt
 
 
 INPUT_DIR = "height_stats"
 OUTPUT_DIR = "height_stats"
+
+FP_PATTERN = re.compile(rf"{INPUT_DIR}/height_(?P<match_type>[\w_]+)_stats.csv")
 
 
 def main():
@@ -16,90 +19,114 @@ def main():
         )
         return 1
 
-    # Should be sorted already but to be safe.
-    df = pd.read_csv(f"{INPUT_DIR}/height_stats.csv").sort_values("year")
+    _, ax = plt.subplots(figsize=(12, 8))
+    for fn in data_path.rglob("*.csv"):
+        fn_match = re.search(FP_PATTERN, str(fn))
+        if fn_match:
+            print(f"Processing: {fn}…")
+            # Should be sorted already, but just to be safe…
+            df = pd.read_csv(fn).sort_values("year")
+            match_type = fn_match.group("match_type")
+            x = df["year"]
+            y = df["mean"]
 
-    types = ["singles", "qual_chall", "futures"]
+            lower = df["ci_lower"]
+            upper = df["ci_upper"]
 
-    plt.figure(figsize=(10, 8))
+            ax.plot(x, y, label=f"{match_type} Mean height")
+            ax.fill_between(x, lower, upper, alpha=0.2, label=f"{match_type} 95% CI")
 
-    for t in types:
-        mean_col = f"mean_{t}"
-        std_col = f"std_{t}"
+    ax.legend()
+    ax.grid(True)
+    ax.set_title("Means per round type per year with 95% CI")
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Height (cm)")
+    plt.savefig(f"{OUTPUT_DIR}/stats.png")
 
-        sub = df[["year", mean_col, std_col]].dropna()
+    # # Should be sorted already but to be safe.
+    # df = pd.read_csv(f"{INPUT_DIR}/height_stats.csv").sort_values("year")
 
-        # Commented the errorbar code as it turned the graph into a mess.
-        # Instead they are plotted in a separate plot.
-        eb = plt.errorbar(
-            sub["year"],
-            sub[mean_col],
-            # yerr=sub[std_col],
-            fmt="o-",
-            capsize=2,
-            alpha=0.6,
-            # errorevery=5,
-            label=t,
-        )
-        x = sub["year"].to_numpy(dtype=float)
-        y = sub[mean_col].to_numpy(dtype=float)
-        slope, intercept = np.polyfit(x, y, 1)
-        y_hat = slope * x + intercept
-        # Same color as it's graph, the graph before was a mess.
-        plt.plot(
-            x,
-            y_hat,
-            "--",
-            color=eb.lines[0].get_color(),
-            alpha=0.8,
-            # label=f"{t} mean trend",
-        )
+    # types = ["singles", "qual_chall", "futures"]
 
-    plt.xlabel("Year")
-    plt.ylabel("Height mean (cm)")
-    plt.title("Height mean by year along with the trend")
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(f"{OUTPUT_DIR}/height_mean_plot.png")
-    plt.figure(figsize=(10, 8))
+    # plt.figure(figsize=(10, 8))
 
-    for t in types:
-        mean_col = f"mean_{t}"
-        std_col = f"std_{t}"
+    # for t in types:
+    #     mean_col = f"mean_{t}"
+    #     std_col = f"std_{t}"
 
-        sub = df[["year", mean_col, std_col]].dropna()
+    #     sub = df[["year", mean_col, std_col]].dropna()
 
-        eb = plt.errorbar(
-            sub["year"],
-            sub[std_col],
-            fmt="o-",
-            capsize=2,
-            alpha=0.6,
-            label=t,
-        )
+    #     # Commented the errorbar code as it turned the graph into a mess.
+    #     # Instead they are plotted in a separate plot.
+    #     eb = plt.errorbar(
+    #         sub["year"],
+    #         sub[mean_col],
+    #         # yerr=sub[std_col],
+    #         fmt="o-",
+    #         capsize=2,
+    #         alpha=0.6,
+    #         # errorevery=5,
+    #         label=t,
+    #     )
+    #     x = sub["year"].to_numpy(dtype=float)
+    #     y = sub[mean_col].to_numpy(dtype=float)
+    #     slope, intercept = np.polyfit(x, y, 1)
+    #     y_hat = slope * x + intercept
+    #     # Same color as it's graph, the graph before was a mess.
+    #     plt.plot(
+    #         x,
+    #         y_hat,
+    #         "--",
+    #         color=eb.lines[0].get_color(),
+    #         alpha=0.8,
+    #         # label=f"{t} mean trend",
+    #     )
 
-        x = sub["year"].to_numpy(dtype=float)
-        y = sub[std_col].to_numpy(dtype=float)
-        slope, intercept = np.polyfit(x, y, 1)
-        y_hat = slope * x + intercept
+    # plt.xlabel("Year")
+    # plt.ylabel("Height mean (cm)")
+    # plt.title("Height mean by year along with the trend")
+    # plt.grid(True)
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.savefig(f"{OUTPUT_DIR}/height_mean_plot.png")
+    # plt.figure(figsize=(10, 8))
 
-        plt.plot(
-            x,
-            y_hat,
-            "--",
-            color=eb.lines[0].get_color(),
-            alpha=0.8,
-            # label=f"{t} std trend",
-        )
+    # for t in types:
+    #     mean_col = f"mean_{t}"
+    #     std_col = f"std_{t}"
 
-    plt.xlabel("Year")
-    plt.ylabel("Height std (cm)")
-    plt.title("Height std by year along with the trend")
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(f"{OUTPUT_DIR}/height_std.png")
+    #     sub = df[["year", mean_col, std_col]].dropna()
+
+    #     eb = plt.errorbar(
+    #         sub["year"],
+    #         sub[std_col],
+    #         fmt="o-",
+    #         capsize=2,
+    #         alpha=0.6,
+    #         label=t,
+    #     )
+
+    #     x = sub["year"].to_numpy(dtype=float)
+    #     y = sub[std_col].to_numpy(dtype=float)
+    #     slope, intercept = np.polyfit(x, y, 1)
+    #     y_hat = slope * x + intercept
+
+    #     plt.plot(
+    #         x,
+    #         y_hat,
+    #         "--",
+    #         color=eb.lines[0].get_color(),
+    #         alpha=0.8,
+    #         # label=f"{t} std trend",
+    #     )
+
+    # plt.xlabel("Year")
+    # plt.ylabel("Height std (cm)")
+    # plt.title("Height std by year along with the trend")
+    # plt.grid(True)
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.savefig(f"{OUTPUT_DIR}/height_std.png")
     return 0
 
 

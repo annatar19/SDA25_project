@@ -36,7 +36,7 @@ def write_output(df, year, match_type):
 
 
 if __name__ == "__main__":
-    singles_cols = [
+    cols = [
         "winner_id",
         "winner_name",
         "winner_ht",
@@ -72,7 +72,7 @@ if __name__ == "__main__":
             if match_type == "doubles":
                 continue
             year = fn_match.group("year")
-            df = pd.read_csv(fn, usecols=singles_cols)  # pyright: ignore
+            df = pd.read_csv(fn, usecols=cols)  # pyright: ignore
             # Just to be sure. Invalid entries will be converted to "NaN" this
             # way. But with our data this will only happen to empty entries.
             df["winner_ht"] = pd.to_numeric(df["winner_ht"], errors="coerce")

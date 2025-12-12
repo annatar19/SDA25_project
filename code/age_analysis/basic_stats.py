@@ -78,22 +78,25 @@ def main():
 
     print("Youngest:", df.loc[youngest_idx, "name"], df.loc[youngest_idx, "age"])
     print("Oldest:", df.loc[oldest_idx, "name"], df.loc[oldest_idx, "age"])
-    sus = df[(df["age"] < 16) | (df["age"] > 50)]
-    sus[["name", "age"]].sort_values("age")
-    print("Outlier match rows:", len(sus))
-    print("Unique outlier players:", sus["id"].nunique())
-    print("Unique players total:", df["id"].nunique())
-    print(
-        "Share of players with any outlier:", sus["id"].nunique() / df["id"].nunique()
-    )
-    sus_young = df[df["age"] < 16]
-    sus_old = df[df["age"] > 45]
+    print(f"There are {len(df["age"] < 16)} matches players younger than 16.")
+    print(f"There are {len(df["age"] < 15)} matches players younger than 15.")
+    print(f"There are {len(df["age"] < 14)} matches players younger than 14.")
+    # sus = df[(df["age"] < 16) | (df["age"] > 50)]
+    # sus[["name", "age"]].sort_values("age")
+    # print("Outlier match rows:", len(sus))
+    # print("Unique outlier players:", sus["id"].nunique())
+    # print("Unique players total:", df["id"].nunique())
+    # print(
+    #     "Share of players with any outlier:", sus["id"].nunique() / df["id"].nunique()
+    # )
+    # sus_young = df[df["age"] < 16]
+    # sus_old = df[df["age"] > 45]
 
-    print("Young outlier match rows:", len(sus_young))
-    print("Old outlier match rows:", len(sus_old))
+    # print("Young outlier match rows:", len(sus_young))
+    # print("Old outlier match rows:", len(sus_old))
 
-    print("Young outlier players:", sus_young["id"].nunique())
-    print("Old outlier players:", sus_old["id"].nunique())
+    # print("Young outlier players:", sus_young["id"].nunique())
+    # print("Old outlier players:", sus_old["id"].nunique())
 
     return 0
 

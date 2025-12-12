@@ -49,6 +49,8 @@ def get_row(df, match):
     mean_ht = players["ht"].mean()
     std_ht = players["ht"].std(ddof=1)
     n = players.shape[0]
+    if year == 2024:
+        print(f"{n} players in {match}")
     # https://en.wikipedia.org/wiki/Confidence_interval#Methods_of_derivation
     standard_error = std_ht / np.sqrt(n)
     alpha = 0.05
