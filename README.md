@@ -15,6 +15,7 @@ The repository is organized into modular folders:
 
 ├── code/                   # Processing and analysis scripts
 ├── data/                   # Contains ATP (men's tennis) and WTA (women's tennis) data
+├── graphs/                 # Contains analysis graphs
 ├── .gitignore              # Files git should ignore
 ├── README.md               # Project overview (you're here now)
 └── requirements.txt        # Python dependencies
