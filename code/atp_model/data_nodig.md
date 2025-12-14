@@ -21,3 +21,5 @@
 - result
 - surface
 - underdog_favored
+
+Startingpoint '91, we use singles
