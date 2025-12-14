@@ -17,6 +17,7 @@
 - p2_winstreak
 
 - tourney_date
+- match_num
 - tourney_id
 - result
 - surface

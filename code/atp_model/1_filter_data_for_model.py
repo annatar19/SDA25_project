@@ -2,6 +2,9 @@ import pandas as pd
 import glob
 import re
 import os
+import numpy as np
+
+from collections import defaultdict
 
 
 # 1) Load raw ATP matches & keep only needed columns
@@ -19,7 +22,7 @@ def load_clean_matches(
     dfs = []
 
     usecols = [
-        "tourney_id", "tourney_date", "surface",
+        "tourney_id", "tourney_date", "match_num", "surface",
         "winner_id", "winner_hand", "winner_ht", "winner_age", "winner_rank_points",
         "loser_id",  "loser_hand",  "loser_ht",  "loser_age",  "loser_rank_points",
     ]
@@ -78,6 +81,7 @@ def build_player_pairs(matches_df: pd.DataFrame, expand_symmetry: bool = True) -
         "tourney_date":       matches_df["tourney_date"],
         "tourney_id":         matches_df["tourney_id"],
         "surface":            matches_df["surface"],
+        "match_num":          matches_df["match_num"],
 
         "p1_id":              matches_df["winner_id"],
         "p1_age":             matches_df["winner_age"],
@@ -102,6 +106,7 @@ def build_player_pairs(matches_df: pd.DataFrame, expand_symmetry: bool = True) -
             "tourney_date":       matches_df["tourney_date"],
             "tourney_id":         matches_df["tourney_id"],
             "surface":            matches_df["surface"],
+            "match_num":          matches_df["match_num"],
 
             "p1_id":              matches_df["loser_id"],
             "p1_age":             matches_df["loser_age"],
@@ -250,23 +255,104 @@ def add_surface_winrates(data):
     
     return df
 
+# 6) Add relative ranking points
+def add_relative_ranking_points(data):
+    """
+    Add a column of relative ranking points from perspective of P1
+    Calculation for relative ranking points = (P1_ranking_points - P2_ranking_points) / P1_ranking_points
+    """
+
+    df = data
+
+    df['p1_ranking_points'] = pd.to_numeric(df['p1_ranking_points'], errors='coerce')
+    df['p2_ranking_points'] = pd.to_numeric(df['p2_ranking_points'], errors='coerce')
+
+    rel_points = []
+    for _, row in df.iterrows():
+        if pd.notna(row['p1_ranking_points']) and pd.notna(row['p2_ranking_points']):
+            if row['p1_ranking_points'] == 0:
+                rel_points.append(np.nan)  # avoid division by zero
+            else:
+                rel_points.append((row['p1_ranking_points'] - row['p2_ranking_points']) / row['p1_ranking_points'])
+        else:
+            rel_points.append(np.nan)
+    
+    if len(rel_points) == len(df):
+        df["rel_ranking_points"] = rel_points
+    else:
+        raise ValueError(f"Length mismatch: DataFrame has {len(df)} rows, "
+                        f"but rel_points has {len(rel_points)} elements.")
+    
+    return df
+
+# 7) Add win streak per player
+def add_win_streak(data):
+    df = data
+
+    df["tourney_date"] = pd.to_datetime(df["tourney_date"], format="%Y%m%d")
+
+    df = df.sort_values(["tourney_date", "match_num"]).reset_index(drop=True)
+
+    win_streak_dict = defaultdict(int)
+    p1_streaks = []
+    p2_streaks = []
+
+    for _, row in df.iterrows():
+        p1_id = row["p1_id"]
+        p2_id = row["p2_id"]
+
+        p1_streaks.append(win_streak_dict[p1_id])
+        p2_streaks.append(win_streak_dict[p2_id])
+
+        win_streak_dict[p1_id] += 1
+        win_streak_dict[p2_id] = 0
+
+    df["p1_streak"] = p1_streaks
+    df["p2_streak"] = p2_streaks
+
+    return df
+
+# 8) Add p1_favor
+def add_favor(data):
+    df = data
+
+    bins = [-np.inf, -0.5, -0.2, -0.05, 0.05, 0.2, 0.5, np.inf]
+    labels = ["heavy_underdog", "moderate_underdog", "slight_underdog", "even",
+              "slight_favorite", "moderate_favorite", "heavy_favorite"]
+
+    df["p1_favor"] = pd.cut(df["rel_ranking_points"], bins=bins, labels=labels)
+
+    return df
 
 if __name__ == "__main__":
     RAW_MATCHES_GLOB = "../../data/tennis_atp_data/unaltered_data/*"
     ARCHETYPES_CSV = "../atp_match_length_analysis/matches_with_archetypes.csv"
     OUTPUT_CSV = "atp_player_pairs_1991_2024.csv"
 
-    # Build base dataset
-    matches = load_clean_matches(RAW_MATCHES_GLOB)
-    dataset = build_player_pairs(matches, expand_symmetry=True)
+    # # Build base dataset
+    # matches = load_clean_matches(RAW_MATCHES_GLOB)
+    # dataset = build_player_pairs(matches, expand_symmetry=True)
 
-    # Build player_id to archetype lookup & merge
-    archetypes_df = make_archetype_lookup_from_matches(ARCHETYPES_CSV)
-    dataset_with_arch = add_player_archetypes(dataset, archetypes_df)
+    # # Build player_id to archetype lookup & merge
+    # archetypes_df = make_archetype_lookup_from_matches(ARCHETYPES_CSV)
+    # dataset_with_arch = add_player_archetypes(dataset, archetypes_df)
 
-    # Add surface winrates
-    dataset_with_surface = add_surface_winrates(dataset_with_arch)
+    # # Add surface winrates
+    # dataset_with_surface = add_surface_winrates(dataset_with_arch)
+
+    # # Add relative ranking points
+    # dataset_with_rel_ranking_points = add_relative_ranking_points(dataset_with_surface)
+
+
+    # # Add win streaks per player
+    # dataset_with_winstreaks = add_win_streak(dataset_with_rel_ranking_points)
+
+    # Instead of rebuilding dataset, read the currently built dataset
+    cur_dataset = pd.read_csv(OUTPUT_CSV)
+    
+    # Add p1_favor
+    dataset_with_favor = add_favor(cur_dataset)
 
     # Save final CSV
-    dataset_with_surface.to_csv(OUTPUT_CSV, index=False)
-    print(f"Saved: {OUTPUT_CSV}  (rows={len(dataset_with_arch):,})")
+    dataset_with_favor.to_csv(OUTPUT_CSV, index=False)
+    print(f"Saved: {OUTPUT_CSV}  (rows={len(dataset_with_favor):,})")
