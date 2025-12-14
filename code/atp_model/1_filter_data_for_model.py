@@ -200,6 +200,56 @@ def add_player_archetypes(matches_df: pd.DataFrame, archetypes_df: pd.DataFrame)
 
     return out
 
+# 5) Add surface winrates
+def add_surface_winrates(data):
+    """
+    Adds p1_surface_winrate and p2_surface_winrate columns.
+    Must be called on dataset sorted by tourney_date.
+    """
+    # Skipping carpet
+    df = data[data['surface'].isin(['Hard', 'Clay', 'Grass'])].copy()
+    # sorting as it wasnt in chronological order, which would ruin the winrate calculation
+    df = df.sort_values('tourney_date').reset_index(drop=True)
+
+    # wouldve preferred doing it with classes as its cleaner for me
+    # tracking tennissers wins and losses per surface
+    tennissers = {}
+    wr_p1 = []
+    wr_p2 = []
+    
+    for _, row in df.iterrows():
+        p1_id, p2_id = row['p1_id'], row['p2_id']
+        surface = row['surface']
+        result = row['result']
+        
+        for player_id in [p1_id, p2_id]:
+            if player_id not in tennissers:
+                # tennissers wins and losses per surface
+                tennissers[player_id] = {
+                    "Grass": {"wins": 0, "losses": 0},
+                    "Hard": {"wins": 0, "losses": 0},
+                    "Clay": {"wins": 0, "losses": 0}
+                }
+        
+        for player_id, list_wr in [(p1_id, wr_p1), (p2_id, wr_p2)]:
+            total = tennissers[player_id][surface]["wins"] + tennissers[player_id][surface]["losses"]
+            # if total plauyed matches on that surface is under 10 make winrate 0.5
+            if total < 10:
+                wr = 0.5
+            else:
+                # win / total
+                wr = tennissers[player_id][surface]["wins"] / total
+
+            list_wr.append(wr)
+        
+        tennissers[p1_id][surface]["wins" if result == 1 else "losses"] += 1
+        tennissers[p2_id][surface]["wins" if result == 0 else "losses"] += 1
+    
+    df['p1_surface_winrate'] = wr_p1
+    df['p2_surface_winrate'] = wr_p2
+    
+    return df
+
 
 if __name__ == "__main__":
     RAW_MATCHES_GLOB = "../../data/tennis_atp_data/unaltered_data/*"
@@ -214,6 +264,9 @@ if __name__ == "__main__":
     archetypes_df = make_archetype_lookup_from_matches(ARCHETYPES_CSV)
     dataset_with_arch = add_player_archetypes(dataset, archetypes_df)
 
+    # Add surface winrates
+    dataset_with_surface = add_surface_winrates(dataset_with_arch)
+
     # Save final CSV
-    dataset_with_arch.to_csv(OUTPUT_CSV, index=False)
+    dataset_with_surface.to_csv(OUTPUT_CSV, index=False)
     print(f"Saved: {OUTPUT_CSV}  (rows={len(dataset_with_arch):,})")
