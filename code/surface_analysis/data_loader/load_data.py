@@ -1,0 +1,43 @@
+# used to load the ATP csvs into a single dataframe
+import pandas as pd
+import glob
+import re
+
+
+def load_tennis_data(
+    path_pattern="../data/tennis_atp_data/unaltered_data/*",
+    regex_pattern=r"/atp_matches_\d{4}.csv",
+    usecols=None,
+):
+    """
+    path_pattern - str
+        Path to the csv's
+    regex_pattern - str
+        Regex pattern that filters to 'atp_matches_XXXX.csv' files to load
+    usecols - list
+        columns to load from each csv. If empty, all cols will be loaded
+    """
+
+    ATP_PATH = path_pattern
+
+    # Matches atp_matches_XXXX.csv
+    match_fn_pattern = re.compile(regex_pattern)
+
+    # Will make a list of strings like:
+    # '../data/tennis_atp/atp_matches_qual_chall_1996.csv'
+    atp_csv_fns = glob.glob(ATP_PATH)
+
+    csvs = []
+    for fn in atp_csv_fns:
+        match = re.search(match_fn_pattern, fn)
+        if match:
+            # https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
+            # My ide gives an error but it works fine.
+            df = pd.read_csv(fn, usecols=usecols)
+            csvs.append(df)
+
+    if not csvs:
+        raise ValueError("no matching csv files, make sure the regex or path pattern is correct")
+
+    # All the .csv into 1, the loaded columns that is.
+    return pd.concat(csvs, ignore_index=True)
