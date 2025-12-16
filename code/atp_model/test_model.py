@@ -133,8 +133,8 @@ def main():
         df["tourney_date"], format="%Y-%m-%d", errors="coerce"
     )
 
-    train_years = {year for year in range(2010, 2021)}
-    test_years = {2024}
+    train_years = {year for year in range(1968, 2022)}
+    test_years = {2022, 2023, 2024}
     is_test_year = df["tourney_date"].dt.year.isin(test_years)
 
     is_train_year = df["tourney_date"].dt.year.isin(train_years)
