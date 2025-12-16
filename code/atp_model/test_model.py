@@ -45,28 +45,26 @@ def get_formulas():
     return formulas
 
 
-def test(formulas):
+def test(train_df, test_df, formulas):
     rows = []
     for formula in formulas:
-        for tier in training_data.keys():
-            train_df = training_data[tier]
-            test_df = testing_data[tier]
-            model = smf.logit(formula, data=train_df).fit()
+        model = smf.logit(formula, data=train_df).fit()
 
-            # How probable is our test data according to the model?
-            p_test = model.predict(test_df)
-            print(model.summary())
-            print(model.pvalues.iloc[1])
-            print(model.pvalues.iloc[2])
+        # How probable is our test data according to the model?
+        p_test = model.predict(test_df)
+        print(model.summary())
+        # print(model.pvalues.iloc[1])
+        # print(model.pvalues.iloc[2])
 
-            # break
-            y_test = test_df["win"].astype(int).values
-            y_hat = (p_test >= 0.5).astype(int)
+        # break
+        y_test = test_df["result"].astype(int).values
+        y_hat = (p_test >= 0.5).astype(int)
 
-            accuracy = accuracy_score(y_test, y_hat)
-            # accuracy = round(accuracy * 100, 2)
-            row = {"formula": formula, "tier": tier, "accuracy": accuracy}
-            rows.append(row)
+        accuracy = accuracy_score(y_test, y_hat)
+        accuracy = round(accuracy * 100, 2)
+        print(accuracy)
+        # row = {"formula": formula, "tier": tier, "accuracy": accuracy}
+        # rows.append(row)
 
 
 def main():
@@ -88,11 +86,9 @@ def main():
 
     train_df = df.loc[~is_test_year].copy()
     test_df = df.loc[is_test_year].copy()
-    print(train_df)
-    print(test_df)
-
     formulas = get_formulas()
-    print(formulas)
+
+    test(train_df, test_df, formulas)
 
     # min_ht, max_ht = get_bounds(training_data, testing_data)
     # formulas = []
