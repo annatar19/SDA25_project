@@ -28,33 +28,83 @@ def get_formulas():
     formulas = []
     # C is category. I More or less just creates a new column based on the
     # formula inside ().
+    # formulas.append(
+    #     """
+    # result ~
+    #     C(surface) +
+    #     C(p1_handedness) + C(p2_handedness) +
+    #     C(p1_archetype)  + C(p2_archetype)  +
+    #     C(p1_favor) +
+    #     I(p1_age - p2_age) +
+    #     I(p1_ht  - p2_ht) +
+    #     rel_ranking_points +
+    #     I(p1_surface_winrate - p2_surface_winrate) +
+    #     I(p1_streak - p2_streak)
+    # """
+    # )
+    # formulas.append(
+    #     """
+    # result ~
+    #     C(surface) +
+    #     C(p1_handedness) + C(p2_handedness) +
+    #     C(p1_archetype)  + C(p2_archetype)  +
+    #     C(p1_favor) * p1_streak +
+    #     I(p1_age - p2_age) +
+    #     I(p1_ht  - p2_ht) +
+    #     rel_ranking_points +
+    #     I(p1_surface_winrate - p2_surface_winrate) +
+    #     I(p1_streak - p2_streak)
+    # """
+    # )
+    # formulas.append(
+    #     """
+    # result ~
+    #     C(surface) +
+    #     C(p1_handedness) + C(p2_handedness) +
+    #     C(p1_archetype)  + C(p2_archetype)  +
+    #     C(p1_favor) * p1_streak +
+    #     I(p1_age - p2_age) +
+    #     bs(p1_ht, df=5) +
+    #     bs(p2_ht, df=5) +
+    #     rel_ranking_points +
+    #     I(p1_surface_winrate - p2_surface_winrate) +
+    #     I(p1_streak - p2_streak)
+    # """
+    # )
+    # formulas.append(
+    #     """
+    # result ~
+    #     rel_ranking_points
+    # """
+    # )
+
     formulas.append(
         """
     result ~
         C(surface) +
         C(p1_handedness) + C(p2_handedness) +
         C(p1_archetype)  + C(p2_archetype)  +
-        C(p1_favor) +
+        C(p1_favor) * p1_streak +
         I(p1_age - p2_age) +
-        I(p1_ht  - p2_ht) +
+        bs(p1_ht, df=5) +
+        bs(p2_ht, df=5) +
         rel_ranking_points +
         I(p1_surface_winrate - p2_surface_winrate) +
         I(p1_streak - p2_streak)
     """
     )
+
     return formulas
 
 
 def test(train_df, test_df, formulas):
-    rows = []
+    # rows = []
     for formula in formulas:
         model = smf.logit(formula, data=train_df).fit()
 
         # How probable is our test data according to the model?
         p_test = model.predict(test_df)
         print(model.summary())
-        # print(model.pvalues.iloc[1])
-        # print(model.pvalues.iloc[2])
 
         # break
         y_test = test_df["result"].astype(int).values
@@ -62,13 +112,12 @@ def test(train_df, test_df, formulas):
 
         accuracy = accuracy_score(y_test, y_hat)
         accuracy = round(accuracy * 100, 2)
-        print(accuracy)
+        print(f"accuracy: {accuracy}")
         # row = {"formula": formula, "tier": tier, "accuracy": accuracy}
         # rows.append(row)
 
 
 def main():
-
     df = pd.read_csv("atp_player_pairs_1991_2024.csv")
     len_raw = len(df)
     print(f"Length raw input: {len_raw}")
@@ -81,17 +130,20 @@ def main():
     df["tourney_date"] = pd.to_datetime(
         df["tourney_date"], format="%Y-%m-%d", errors="coerce"
     )
-    test_years = {2022, 2023, 2024}
+
+    train_years = {year for year in range(2010, 2021)}
+    test_years = {2024}
     is_test_year = df["tourney_date"].dt.year.isin(test_years)
 
-    train_df = df.loc[~is_test_year].copy()
+    is_train_year = df["tourney_date"].dt.year.isin(train_years)
+
+    train_df = df.loc[is_train_year].copy()
+    # train_df = df.loc[~is_test_year].copy()
     test_df = df.loc[is_test_year].copy()
     formulas = get_formulas()
 
+    # print(train_df)
     test(train_df, test_df, formulas)
-
-    # min_ht, max_ht = get_bounds(training_data, testing_data)
-    # formulas = []
 
     return 0
 
