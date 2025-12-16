@@ -9,9 +9,6 @@ import shutil
 from sklearn.metrics import accuracy_score, roc_auc_score, log_loss, brier_score_loss
 
 
-TEST_YEARS = [2022, 2023, 2024]
-
-
 def get_bounds(training_data, testing_data):
     min_ht = min(
         training_data["all"][["player_ht", "opponent_ht"]].min().min(),
@@ -29,35 +26,21 @@ def get_formulas():
     This function serves to separate the formulas from the rest of the code
     """
     formulas = []
+    # C is category. I More or less just creates a new column based on the
+    # formula inside ().
     formulas.append(
-        f"win ~ "
-        f"bs(player_ht, df=5, lower_bound={min_ht}, upper_bound={max_ht}) + "
-        f"bs(opponent_ht, df=5, lower_bound={min_ht}, upper_bound={max_ht})"
-    )
-    formulas.append(f"win ~ " f"bs(player_ht - opponent_ht, df=5)")
-    formulas.append("win ~ player_ht - opponent_ht")  # plain linear diff
-    formulas.append("win ~ I(player_ht - opponent_ht) + I(player_ht + opponent_ht)")
-    formulas.append("win ~ I(player_ht - opponent_ht) + I((player_ht + opponent_ht)/2)")
-    formulas.append("win ~ bs(player_ht - opponent_ht, df=5)")
-    formulas.append("win ~ bs((player_ht + opponent_ht)/2, df=5)")
-    formulas.append(
-        "win ~ bs(player_ht - opponent_ht, df=5) + bs((player_ht + opponent_ht)/2, df=5)"
-    )
-    formulas.append(
-        f"win ~ bs(player_ht, df=5, lower_bound={min_ht}, upper_bound={max_ht})"
-        f" + bs(opponent_ht, df=5, lower_bound={min_ht}, upper_bound={max_ht})"
-        f" + I(player_ht - opponent_ht)"
-    )
-
-    formulas.append(
-        f"win ~ bs(player_ht, df=5, lower_bound={min_ht}, upper_bound={max_ht})"
-        f" * bs(opponent_ht, df=5, lower_bound={min_ht}, upper_bound={max_ht})"
-    )  # includes main effects + interaction
-
-    formulas.append(
-        f"win ~ bs(player_ht, df=5, lower_bound={min_ht}, upper_bound={max_ht})"
-        f" + bs(opponent_ht, df=5, lower_bound={min_ht}, upper_bound={max_ht})"
-        f" + bs(player_ht - opponent_ht, df=5)"
+        """
+    result ~
+        C(surface) +
+        C(p1_handedness) + C(p2_handedness) +
+        C(p1_archetype)  + C(p2_archetype)  +
+        C(p1_favor) +
+        I(p1_age - p2_age) +
+        I(p1_ht  - p2_ht) +
+        rel_ranking_points +
+        I(p1_surface_winrate - p2_surface_winrate) +
+        I(p1_streak - p2_streak)
+    """
     )
     return formulas
 
@@ -96,6 +79,20 @@ def main():
     print(
         f"dropna dropped {len_raw- len_non_na} rows, which is {((len_raw- len_non_na)/len_raw*100):.1f}%."
     )
+    # So we can split test and train based on date.
+    df["tourney_date"] = pd.to_datetime(
+        df["tourney_date"], format="%Y-%m-%d", errors="coerce"
+    )
+    test_years = {2022, 2023, 2024}
+    is_test_year = df["tourney_date"].dt.year.isin(test_years)
+
+    train_df = df.loc[~is_test_year].copy()
+    test_df = df.loc[is_test_year].copy()
+    print(train_df)
+    print(test_df)
+
+    formulas = get_formulas()
+    print(formulas)
 
     # min_ht, max_ht = get_bounds(training_data, testing_data)
     # formulas = []
