@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from statsmodels.stats.proportion import proportions_ztest
 import matplotlib.pyplot as plt
 
@@ -23,61 +24,131 @@ def two_proportion_z_test(wins_R, total_R, wins_L, total_L):
     return z_stat, p_value
 
 
-def plot_winrate_barchart(summary):
+def plot_winrate_barchart(summary, p_value=None, z_value=None):
+    """
+    Win rate bar chart
+    """
 
-    p_L = summary.loc["L", "Win Rate"] * 100
-    p_R = summary.loc["R", "Win Rate"] * 100
-    diff = (p_R - p_L)
-
-    win_rates = [p_L, p_R]
-    labels = ["Left-handed", "Right-handed"]
-
-    plt.figure(figsize=(6,4))
-
-    bars = plt.bar(labels, win_rates, color=["gray", "black"], alpha=0.8)
-
-    # Annotate % on top of each bar
-    for bar, rate in zip(bars, win_rates):
-        plt.text(
-            bar.get_x() + bar.get_width()/2,
-            bar.get_height() + 0.5,
-            f"{rate:.1f}%",
-            ha='center', va='bottom', fontsize=10
-        )
-
-    plt.ylabel("Win Rate (%)")
-    plt.title("Win Rate Comparison: Left vs Right-Handed Players")
-    plt.ylim(0, 100)
-    plt.grid(True, axis='y', linestyle='--', alpha=0.4)
-
-    plt.tight_layout()
-    plt.figtext(
-        0.5, 0,
-        f"Difference = {diff:.2f}% (statistically significant but small effect)",
-        ha='center', va='bottom', fontsize=10
+    win_rates = (
+        summary.loc[["L", "R"], "Win Rate"]
+        .rename(index={"L": "Left-handed", "R": "Right-handed"})
+        .sort_values()
     )
 
-    plt.show()
+    plt.figure(figsize=(8, 6))
+
+    colors = plt.cm.Blues(np.linspace(0.4, 0.8, len(win_rates)))
+    bars = plt.bar(win_rates.index, win_rates.values, color=colors)
+
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height + 0.01,
+            f"{height:.3f}",
+            ha="center",
+            va="bottom",
+            fontsize=11
+        )
+
+    plt.grid(axis="y", linestyle="--", alpha=0.4)
+    plt.xticks(rotation=0)
+    plt.ylim(0, 1)
+
+    plt.ylabel("Win Rate")
+    plt.title(
+        "Win Rate Comparison: Left vs Right-Handed Players",
+        fontsize=16,
+        weight="bold"
+    )
+
+    plt.subplots_adjust(bottom=0.20)
+
+    if p_value is not None and z_value is not None:
+        significance = "significant" if p_value < 0.05 else "not significant"
+
+        if p_value < 0.001:
+            p_text = "p < 0.001"
+        else:
+            p_text = f"p = {p_value:.5f}"
+
+        diff = (win_rates["Right-handed"] - win_rates["Left-handed"]) * 100
+
+        plt.figtext(
+            0.5, 0.1,
+            f"Two-proportion z-test: z = {z_value:.2f}, {p_text} ({significance}) | "
+            f"Difference = {diff:.2f}%",
+            ha="center",
+            fontsize=11
+        )
+
+
+def plot_total_match_appearances_by_hand(summary):
+    """
+    plt graph 1
+    """
+
+    counts = (
+        summary.loc[["L", "R"], "Total Matches"]
+        .rename(index={"L": "Left-handed", "R": "Right-handed"})
+    )
+
+    plt.figure(figsize=(8, 6))
+
+    colors = plt.cm.Blues(np.linspace(0.4, 0.8, len(counts)))
+    bars = plt.bar(counts.index, counts.values, color=colors)
+
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height + height * 0.01,
+            f"{int(height):,}",
+            ha="center", va="bottom", fontsize=11
+        )
+
+    plt.grid(axis="y", linestyle="--", alpha=0.4)
+    plt.xticks(rotation=0)
+    plt.ylim(0, counts.max() * 1.10)
+
+    plt.ylabel("Total Match Appearances")
+    plt.title("ATP Match Appearances by Player Handedness",
+              fontsize=16, weight="bold")
+
+    total_matches = counts.sum()
+    left_pct = 100 * counts["Left-handed"] / total_matches
+    right_pct = 100 * counts["Right-handed"] / total_matches
+
+    plt.subplots_adjust(bottom=0.20)
+
+    plt.figtext(
+        0.5, 0.1,
+        f"Left-handed: {left_pct:.1f}%   |   Right-handed: {right_pct:.1f}% of all matches",
+        ha="center",
+        fontsize=11
+    )
+
     return plt
 
 
 def main():
     winrate_summary = load_winrate_summary()
+
+    # Context plot
+    plot_total_match_appearances_by_hand(winrate_summary)
+
+    # Statistical test
     z, p = two_proportion_z_test(
-        wins_R=winrate_summary.loc["R", "Wins"], wins_L=winrate_summary.loc["L", "Wins"],
-        total_R=winrate_summary.loc["R", "Total Matches"], total_L=winrate_summary.loc["L", "Total Matches"]
+        wins_R=winrate_summary.loc["R", "Wins"],
+        wins_L=winrate_summary.loc["L", "Wins"],
+        total_R=winrate_summary.loc["R", "Total Matches"],
+        total_L=winrate_summary.loc["L", "Total Matches"]
     )
 
-    winrate_barchar = plot_winrate_barchart(winrate_summary)
-    winrate_barchar
+    # Result plot
+    plot_winrate_barchart(winrate_summary, p_value=p, z_value=z)
 
-    print("\n=== Interpretation ===")
-    print("Z-statistic:", round(z,2))
-    print("p-value:", round(p,3))
-    if p < 0.05:
-        print("Result: Statistically significant difference between R and L win rates (p < 0.05).")
-    else:
-        print("Result: No statistically significant difference between R and L win rates (p ≥ 0.05).")
+    plt.show()
 
 
 if __name__ == "__main__":
