@@ -62,7 +62,7 @@ def plot_winrate_barchart(summary, p_value=None, z_value=None):
         weight="bold"
     )
 
-    plt.subplots_adjust(bottom=0.20)
+    plt.subplots_adjust(bottom=0.23)
 
     if p_value is not None and z_value is not None:
         significance = "significant" if p_value < 0.05 else "not significant"
@@ -72,12 +72,25 @@ def plot_winrate_barchart(summary, p_value=None, z_value=None):
         else:
             p_text = f"p = {p_value:.5f}"
 
-        diff = (win_rates["Right-handed"] - win_rates["Left-handed"]) * 100
+        # Difference (Right - Left) in percentage points
+        pL = win_rates["Left-handed"]
+        pR = win_rates["Right-handed"]
+        nL = summary.loc["L", "Total Matches"]
+        nR = summary.loc["R", "Total Matches"]
+
+        diff = pR - pL
+        diff_pp = diff * 100
+
+        # 95% CI for the difference in proportions (normal approx)
+        se_diff = np.sqrt(pR * (1 - pR) / nR + pL * (1 - pL) / nL)
+        ci_low_pp = (diff - 1.96 * se_diff) * 100
+        ci_high_pp = (diff + 1.96 * se_diff) * 100
 
         plt.figtext(
-            0.5, 0.1,
-            f"Two-proportion z-test: z = {z_value:.2f}, {p_text} ({significance}) | "
-            f"Difference = {diff:.2f}%",
+            0.5, 0.08,
+            f"Two-proportion z-test: z = {z_value:.2f}, {p_text} ({significance})\n"
+            f"Difference (Right − Left) = {diff_pp:.2f} percentage points\n"
+            f"95% CI for difference: [{ci_low_pp:.2f}, {ci_high_pp:.2f}] percentage points",
             ha="center",
             fontsize=11
         )
