@@ -92,9 +92,33 @@ def get_formulas():
         I(p1_streak - p2_streak)
     """
     )
+    
     # Highest accuracy matched with the best age height formula.
     formulas.append(
-        "result ~ C(surface) + C(p1_handedness) + C(p2_handedness) + C(p1_archetype) + C(p2_archetype) + C(p1_favor) * p1_streak + bs(p1_age, df=6) + bs(p2_age, df=6) + bs(p1_ht, df=6) + bs(p2_ht, df=6) + rel_ranking_points + I(p1_surface_winrate - p2_surface_winrate) + I(p1_streak - p2_streak)"
+        """result ~ 
+        C(surface) + 
+        C(p1_handedness) + C(p2_handedness) + 
+        C(p1_archetype) + C(p2_archetype) + 
+        C(p1_favor) * p1_streak + 
+        bs(p1_age, df=6) + bs(p2_age, df=6) + 
+        bs(p1_ht, df=6) + bs(p2_ht, df=6) + 
+        rel_ranking_points + 
+        I(p1_surface_winrate - p2_surface_winrate) + 
+        I(p1_streak - p2_streak)"""
+    )
+
+    # Highest accuracy matched with the best age height formula + absolute ranking points, no more relative. Slightly higher AUC
+    formulas.append(
+        """result ~ 
+        C(surface) + 
+        C(p1_handedness) + C(p2_handedness) + 
+        C(p1_archetype) + C(p2_archetype) + 
+        C(p1_favor) * p1_streak + 
+        bs(p1_age, df=6) + bs(p2_age, df=6) + 
+        bs(p1_ht, df=6) + bs(p2_ht, df=6) + 
+        abs_ranking_points + 
+        I(p1_surface_winrate - p2_surface_winrate) + 
+        I(p1_streak - p2_streak)"""
     )
 
     return formulas

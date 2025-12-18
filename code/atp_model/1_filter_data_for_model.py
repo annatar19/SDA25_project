@@ -324,6 +324,33 @@ def add_favor(data):
 
     return df
 
+# 9) Add absolute ranking points
+def add_absolute_ranking_points(data):
+    """
+    Add a column of relative ranking points from perspective of P1
+    Calculation for relative ranking points = (P1_ranking_points - P2_ranking_points) / P1_ranking_points
+    """
+
+    df = data
+
+    df['p1_ranking_points'] = pd.to_numeric(df['p1_ranking_points'], errors='coerce')
+    df['p2_ranking_points'] = pd.to_numeric(df['p2_ranking_points'], errors='coerce')
+
+    abs_points = []
+    for _, row in df.iterrows():
+        if pd.notna(row['p1_ranking_points']) and pd.notna(row['p2_ranking_points']):
+            abs_points.append((row['p1_ranking_points'] - row['p2_ranking_points']))
+        else:
+            abs_points.append(np.nan)
+    
+    if len(abs_points) == len(df):
+        df["abs_ranking_points"] = abs_points
+    else:
+        raise ValueError(f"Length mismatch: DataFrame has {len(df)} rows, "
+                        f"but rel_points has {len(abs_points)} elements.")
+    
+    return df
+
 if __name__ == "__main__":
     RAW_MATCHES_GLOB = "../../data/tennis_atp_data/unaltered_data/*"
     ARCHETYPES_CSV = "../atp_match_length_analysis/matches_with_archetypes.csv"
@@ -351,8 +378,10 @@ if __name__ == "__main__":
     cur_dataset = pd.read_csv(OUTPUT_CSV)
     
     # Add p1_favor
-    dataset_with_favor = add_favor(cur_dataset)
+    dataset_with_abs_rank_points = add_absolute_ranking_points(cur_dataset)
+
+    # Add abs_ranking_points
 
     # Save final CSV
-    dataset_with_favor.to_csv(OUTPUT_CSV, index=False)
-    print(f"Saved: {OUTPUT_CSV}  (rows={len(dataset_with_favor):,})")
+    dataset_with_abs_rank_points.to_csv(OUTPUT_CSV, index=False)
+    print(f"Saved: {OUTPUT_CSV}  (rows={len(dataset_with_abs_rank_points):,})")
