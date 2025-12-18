@@ -96,11 +96,22 @@ plt.show()
 # Make sure opponent_rank exists and is numeric (skip if already numeric)
 df["opponent_rank"] = pd.to_numeric(df["opponent_rank"], errors="coerce")
 
-# Fit an extended model that knows about the opponent as well
+# Full model: player + opponent archetype
 matchup_model = smf.logit(
-    "won ~ player_archetype + opponent_archetype + player_rank + opponent_rank",
+    "won ~ player_archetype + opponent_archetype",
     data=df
 ).fit(disp=False)
+
+# Reduced model: player archetype only
+reduced_matchup = smf.logit(
+    "won ~ player_archetype",
+    data=df
+).fit(disp=False)
+
+# Likelihood-ratio test
+lr_stat = 2 * (matchup_model.llf - reduced_matchup.llf)
+df_diff = matchup_model.df_model - reduced_matchup.df_model
+p_matchup = 1 - chi2.cdf(lr_stat, df_diff)
 
 # Define the order for rows/cols
 archetype_order = ["Sprinter", "Balanced", "Endurance"]
@@ -108,15 +119,11 @@ archetype_order = ["Sprinter", "Balanced", "Endurance"]
 present = pd.unique(pd.concat([df["player_archetype"], df["opponent_archetype"]], ignore_index=True))
 archetypes_for_grid = [a for a in archetype_order if a in present] + [a for a in present if a not in archetype_order]
 
-# Predict at fixed ranks (use means so we isolate archetype effects)
-mean_player_rank = df["player_rank"].mean()
-mean_opp_rank = df["opponent_rank"].mean()
-
 grid = pd.DataFrame(
-    [(pa, oa, mean_player_rank, mean_opp_rank)
+    [(pa, oa)
      for pa in archetypes_for_grid
      for oa in archetypes_for_grid],
-    columns=["player_archetype", "opponent_archetype", "player_rank", "opponent_rank"]
+    columns=["player_archetype", "opponent_archetype"]
 )
 
 grid["pred_prob"] = matchup_model.predict(grid)
@@ -130,7 +137,11 @@ plt.figure(figsize=(7, 6))
 im = plt.imshow(mat.values, vmin=0.3, vmax=0.5, cmap="RdYlGn")
 plt.xticks(np.arange(len(archetypes_for_grid)), archetypes_for_grid, rotation=45, ha="right")
 plt.yticks(np.arange(len(archetypes_for_grid)), archetypes_for_grid)
-plt.title("Predicted Rank-Controlled Matchup Heatmap")
+plt.title(
+    "Archetype Matchup Win Probabilities",
+    fontsize=16,
+    weight="bold"
+)
 cbar = plt.colorbar(im)
 
 # Annotate each cell with the predicted probability
@@ -139,5 +150,16 @@ for i in range(mat.shape[0]):
         plt.text(j, i, f"{mat.iat[i, j]:.2f}", ha="center", va="center")
 
 plt.tight_layout()
+
+p_text = "p < 0.001" if p_matchup < 0.001 else f"p = {p_matchup:.4f}"
+significance = "significant" if p_matchup < 0.05 else "not significant"
+
+plt.figtext(
+    0.5, 0.005,
+    f"(LR test for opponent archetype: {p_text}, {significance}).",
+    ha="center",
+    fontsize=11
+)
+
 plt.savefig("8c_rank_controlled_matchup_heatmap.png", dpi=300)
 plt.show()
