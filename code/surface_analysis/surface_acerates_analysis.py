@@ -64,7 +64,6 @@ for surface, data_subset in [('Grass', grass_aces), ('Hard', hard_aces), ('Clay'
 
 print("\n1. ANOVA test:")
 f_stat, p_value = stats.f_oneway(hard_aces, clay_aces, grass_aces)
-print(f"F-statistic: {f_stat:.4f}")
 print(f"p-value: {p_value:.5e}")
 
 if p_value < 0.05:

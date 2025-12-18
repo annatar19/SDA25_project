@@ -239,12 +239,7 @@ def add_surface_winrates(data):
         for player_id, list_wr in [(p1_id, wr_p1), (p2_id, wr_p2)]:
             total = tennissers[player_id][surface]["wins"] + tennissers[player_id][surface]["losses"]
             # if total plauyed matches on that surface is under 10 make winrate 0.5
-            if total < 10:
-                wr = 0.5
-            else:
-                # win / total
-                wr = tennissers[player_id][surface]["wins"] / total
-
+            wr = (tennissers[player_id][surface]["wins"] + 1) / (total + 2)
             list_wr.append(wr)
         
         tennissers[p1_id][surface]["wins" if result == 1 else "losses"] += 1
