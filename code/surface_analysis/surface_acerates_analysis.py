@@ -3,21 +3,21 @@
 # Could expand to match time whether it increases but ace rates should be enough evidence
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
 from data_loader.load_data import load_tennis_data
 
 # NULL HYPOTHESIS = There is no difference in ace_rates between the different surfaces
 data = load_tennis_data(
-    path_pattern="../data/tennis_atp_data/unaltered_data/*",
-    regex_pattern=r"/atp_matches_(199[7-9]|20[0-1][0-9]|202[0-4])\.csv",  # 1997-2024
-    usecols=[
-        'tourney_date', 'surface', 'tourney_level', 'w_ace', 'w_svpt',
-        'l_ace', 'l_svpt']
+    path_pattern="../../data/tennis_atp_data/unaltered_data/*",
+    regex_pattern=r"/atp_matches_(20[0-1][0-9]|202[0-4])\.csv",  # 2000-2024
+    usecols=['tourney_date', 'surface', 'tourney_level', 
+             'w_ace', 'w_svpt', 'l_ace', 'l_svpt', 'winner_id', 'loser_id']
 )
 
 # ============================================================================
-# preprocess data
+# preprocess
 # ============================================================================
 
 print(f"\ninitial data size = {len(data)}")
@@ -33,40 +33,44 @@ data = data[(data['w_svpt'] > 0) & (data['l_svpt'] > 0)]
 data = data[data['surface'].isin(['Hard', 'Clay', 'Grass'])]
 print(f"data size after preprocess = {len(data)}")
 
-# combining aces of both the loser and winner, thus checking total ace rate per match
-data['total_aces'] = data['w_ace'] + data['l_ace']
-data['total_svpt'] = data['w_svpt'] + data['l_svpt']
-data['ace_rate'] = (data['total_aces'] / data['total_svpt']) * 100
+winner_df = data[['winner_id', 'surface', 'w_ace', 'w_svpt']].copy()
+winner_df.columns = ['player_id', 'surface', 'aces', 'svpt']
 
-print("\nmatches per surface:")
-for i in ['Grass', 'Hard', 'Clay']:
-    n = len(data[data['surface'] == i])
-    print(f"  {i} = {n}")
+loser_df = data[['loser_id', 'surface', 'l_ace', 'l_svpt']].copy()
+loser_df.columns = ['player_id', 'surface', 'aces', 'svpt']
+
+# canncated winner + loser rows
+df_concateed = pd.concat([winner_df, loser_df], ignore_index=True)
+
+player_surface = (
+    df_concateed
+    .groupby(['player_id', 'surface'])
+    .agg(total_aces=('aces', 'sum'), total_svpt=('svpt', 'sum'))
+    .reset_index()
+)
+player_surface['ace_rate'] = (player_surface['total_aces'] / player_surface['total_svpt']) * 100
 
 # ============================================================================
-# analyzing data
+# analyzing
 # ============================================================================
 
-# split data in to the 3 surfaces
-hard_aces = data[data['surface'] == 'Hard']['ace_rate'].values
-clay_aces = data[data['surface'] == 'Clay']['ace_rate'].values
-grass_aces = data[data['surface'] == 'Grass']['ace_rate'].values
+hard_aces = player_surface[player_surface['surface'] == 'Hard']['ace_rate'].values
+clay_aces = player_surface[player_surface['surface'] == 'Clay']['ace_rate'].values
+grass_aces = player_surface[player_surface['surface'] == 'Grass']['ace_rate'].values
 
-# quick overview of means per surface
-print("\nace rates (mean)")
+print("\nAce rates (mean per player per surface):")
 for surface, data_subset in [('Grass', grass_aces), ('Hard', hard_aces), ('Clay', clay_aces)]:
     print(f"  {surface}: mean = {np.mean(data_subset):.2f}%")
 
-# anova test
-print("\n1. anova test:")
+print("\n1. ANOVA test:")
 f_stat, p_value = stats.f_oneway(hard_aces, clay_aces, grass_aces)
 print(f"F-statistic: {f_stat:.4f}")
-print(f"p-value: {p_value}")
+print(f"p-value: {p_value:.5e}")
 
 if p_value < 0.05:
-    print("REJECT null hypothesis (surface does have significant effect on ace_rates)")
+    print("REJECT null hypothesis (surface has significant effect on ace rates)")
 else:
-    print("FAIL TO REJECT null hypothesis (surface does NOT have significant effect on ace_rates)")
+    print("FAIL TO REJECT null hypothesis (surface does NOT have significant effect)")
 
 # ============================================================================
 # visualisatie
@@ -75,10 +79,10 @@ else:
 colors = {'Grass': 'green', 'Hard': 'blue', 'Clay': 'orange'}
 surfaces = ['Grass', 'Hard', 'Clay']
 
-plt.figure(figsize=(20, 12))
+plt.figure(figsize=(15, 12))
 
 for surface in surfaces:
-    data_per = data[data['surface'] == surface]['ace_rate']
+    data_per = player_surface[player_surface['surface'] == surface]['ace_rate']
 
     plt.hist(
         data_per,
@@ -106,11 +110,13 @@ for surface in surfaces:
 
 # had a really long tail, because of outliers
 # decided to limit the x axis to 0 - 30 percent
-plt.xlim([0, 30])
-plt.xlabel('Ace Rate (% of service points)')
-plt.ylabel('Density')
-plt.title(f'Ace rate by court surface (n={len(data):,} matches over the years 1997-2024)')
-plt.legend()
+plt.xticks(fontsize=20)
+plt.yticks(fontsize=20)
+plt.xlim([0, 27])
+plt.xlabel('Ace Rate (% of service points)', fontsize=20)
+plt.ylabel('Density', fontsize=20)
+plt.title(f'Ace rate by court surface (per player, 2000-2024)', fontsize=25)
+plt.legend(fontsize=20)
 plt.grid(True, alpha=0.25, linestyle='--')
 plt.tight_layout()
 plt.savefig('../../graphs/surface/surfaces_acerates.png')

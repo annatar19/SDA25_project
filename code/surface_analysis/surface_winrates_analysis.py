@@ -8,7 +8,7 @@ def load_data_wr(path):
     data = pd.read_csv(path)
     # this to check only for close matches
     # so i can check the effect of winrate better
-    return data[(data['p2_rank'] - data['p1_rank']).abs() <= 100]
+    return data[(data['p2_rank'] - data['p1_rank']).abs() <= 50]
 
 def split_train_test(data):
     # splitting in chronological order as its a timer series
