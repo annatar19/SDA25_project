@@ -4,6 +4,5 @@
 - `logit_csv.py` Converts the height data to a form useful for training the logistic regression models. Result is stored in `csv/logit.csv`
 - `model.py` Tests various Patsy formulas for the logistic regression model and stores the results in `csv/model_results.csv`
 - `heatmap.py` Was experimental code used to view the results of the logistic regression. It is unused.
-- `old/` Contains the previous height analysis code. It is unused and uncleaned.
 - `csv/` Contains all the `.csv ` files.
 - `png/` Contains all the plots.
