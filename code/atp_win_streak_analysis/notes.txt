@@ -1,3 +1,7 @@
+OVERALL NOTE
+I THINK WE SHOULD DO ALL OF OUR ANALYSIS FOR DIFFERENT LEVELS OF TENNIS ONCE AS WELL. DIFFERENCES IN THESE LEVELS COULD MATTER, AND IT WOULD BE A NICE ADDITION TO THE PREDICTION MODEL
+
+
 # Experiment 1
 # This experiment will analyse any direct correlation between winning streak with either winning or losing a game.
 # It is expected that a high win streak will correlate to a higher probability of winning.

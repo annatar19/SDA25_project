@@ -13,40 +13,60 @@ from collections import defaultdict
 
 RANDOM_SEED = 1
 
-EXPERIMENT_NO = [1, 2, 3]
+EXPERIMENT_NO = [3]
 PLOT_DATA = True
 
-def log_reg(df, x_col_name, y_col_name, plot=True, exp_no = None):
+def log_reg(df, x_col_name, y_col_name, exp_no=None, plot=True):
+    # Optional scatter plot
     if plot:
-        plt.scatter(df[x_col_name], df[y_col_name])
+        plt.figure(figsize=(6, 4))
+        plt.scatter(df[x_col_name], df[y_col_name], alpha=0.5)
+        plt.xlabel(x_col_name)
+        plt.ylabel(y_col_name)
+        plt.title(f"{y_col_name} vs {x_col_name}")
         plt.show()
 
+    # Prepare feature and target
     x_val = df[[x_col_name]]
     y_val = df[y_col_name]
 
-    train_x, test_x, train_y, test_y = train_test_split(x_val, y_val, random_state = RANDOM_SEED)
+    # Train/test split
+    train_x, test_x, train_y, test_y = train_test_split(
+        x_val, y_val, test_size=0.3, random_state=RANDOM_SEED
+    )
 
-    log_reg_high_rank_wins = LogisticRegression()
-    log_reg_high_rank_wins.fit(train_x, train_y)
+    # sklearn logistic regression
+    log_reg_model = LogisticRegression()
+    log_reg_model.fit(train_x, train_y)
 
-    if exp_no == None:
+    # NHST using statsmodels
+    X_sm = sm.add_constant(train_x)  # add intercept
+    model_sm = sm.Logit(train_y, X_sm).fit(disp=False)
+    summary_table = model_sm.summary2().tables[1]  # coefficient table with p-values
+
+    if exp_no is None:
         exp_no = ""
 
-    print(f"______________________________________\nResults experiment {exp_no}\n______________________________________\n")
+    print(f"______________________________________")
+    print(f"Results experiment {exp_no}")
+    print(f"______________________________________\n")
 
-    print(f"Beta-coef: {log_reg_high_rank_wins.coef_}")
-    print(f"Intercept: {log_reg_high_rank_wins.intercept_}")
+    # sklearn results
+    print(f"Sklearn logistic regression:")
+    print(f"Beta-coef: {log_reg_model.coef_}")
+    print(f"Intercept: {log_reg_model.intercept_}")
 
-    pred_y = log_reg_high_rank_wins.predict(test_x)
-    pred_prob = log_reg_high_rank_wins.predict_proba(test_x)[:, 1]
+    pred_y = log_reg_model.predict(test_x)
+    pred_prob = log_reg_model.predict_proba(test_x)[:, 1]
 
     print(f"\nConfusion mat:\n{confusion_matrix(test_y, pred_y)}\n")
+    print(f"Accuracy: {accuracy_score(test_y, pred_y):.3f}")
+    print(f"ROC-AUC: {roc_auc_score(test_y, pred_prob):.3f}\n")
 
-    acc = accuracy_score(test_y, pred_y)
-    print(f"Accuracy: {acc:.3f}")
+    # NHST results
+    print(f"Statsmodels logistic regression (NHST for coefficient significance):")
+    print(summary_table)
 
-    auc = roc_auc_score(test_y, pred_prob)
-    print(f"ROC-AUC: {auc:.3f}")
 
 def add_shuffled_columns(df, col1, col2, new1, new2, seed=None):
     if seed is not None:
@@ -201,9 +221,6 @@ def plot_experiment3_1(df, models):
     plt.legend()
     plt.grid(True)
     plt.show()
-
-def print_experiment3_results(models):
-    pass
 
 def experiment3_2(plot=True):
     df = pd.read_csv("./code/atp_win_streak_analysis/experiment3_data.csv")
