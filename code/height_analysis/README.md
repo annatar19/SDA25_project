@@ -1,19 +1,9 @@
-This folder contains the code for the height analysis of the data, as well as all of the results.
-
-For know it is a mess. The most important are the scripts with 'plot' and their name. If you run them they should tell you what is missing.
-
-Their outputs are in the directories with 'stats' in their name.
-
-- `clean_height_data.py` Extracts and cleans the data used in the height analysis. The results are stored in `filtered_heights`
-
-- `height_stats.py` Gets the means and stds for all the heights in the dataset. The results are stored in `height_stats/height_stats.csv`
-- `plot_height_stats.py` Plots the statistics of the heights over the years along with the trent. The results are stored in `height_stats/height_mean_plot.png` and `height_stats/height_std.png`
-
-
-- `ht_logit_csv.py` Builds the win=1 win=0 csvs used in logistic regression and stores it in `logit_csv`
-- `ht_logit_plot.py` Creates heatmaps for the data in `logit_csv`.
-- `height_logit_test.py` Is meant to test which formula predicts the best.
-
-- TODO rest of unused.
-- `unused/atp_mean_height.py` Was used for early tests.
-- `unused/height_matchup_classify.py` Was used for an early attempt to use heights in buckets.
+- `data_csv.py` Cleans the height data used in the rest of the analysis and stores it in `csv/data.csv`.
+- `height_analyse_tier.py` Analyses the difference in average heights between the 3 tiers and saves the result to `png/height_tier_stats.csv` as well as a plot in `png/height_stats_tier.png` .
+- `height_analyse_winner_loser.py` Analyses the difference in average heights between winners and losers in the main tier and saves the result to `winner_loser_ht_mean.csv` as well as a plot in `png/winner_loser_ht_mean.png`.
+- `logit_csv.py` Converts the height data to a form useful for training the logistic regression models. Result is stored in `csv/logit.csv`
+- `model.py` Tests various Patsy formulas for the logistic regression model and stores the results in `csv/model_results.csv`
+- `heatmap.py` Was experimental code used to view the results of the logistic regression. It is unused.
+- `old/` Contains the previous height analysis code. It is unused and uncleaned.
+- `csv/` Contains all the `.csv ` files.
+- `png/` Contains all the plots.

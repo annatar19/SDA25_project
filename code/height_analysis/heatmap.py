@@ -1,0 +1,81 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import statsmodels.formula.api as smf
+
+
+def matchup_heatmap(
+    model,
+    xcol,
+    ycol,
+    x_vals,
+    y_vals,
+    fixed,
+    title,
+    out_png,
+    vmin=None,
+    vmax=None,
+    clip_quantiles=None,
+):
+    X, Y = np.meshgrid(x_vals, y_vals)
+
+    grid = pd.DataFrame(
+        {
+            xcol: X.ravel(),
+            ycol: Y.ravel(),
+            **{k: np.full(X.size, v) for k, v in fixed.items()},
+        }
+    )
+
+    P = model.predict(grid).to_numpy().reshape(len(y_vals), len(x_vals))
+
+    if clip_quantiles is not None:
+        qlo, qhi = clip_quantiles
+        vmin, vmax = np.quantile(P, [qlo, qhi])
+    if vmin is None:
+        vmin = float(np.min(P))
+    if vmax is None:
+        vmax = float(np.max(P))
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    im = ax.imshow(
+        P,
+        origin="lower",
+        aspect="auto",
+        extent=[x_vals.min(), x_vals.max(), y_vals.min(), y_vals.max()],
+        vmin=vmin,
+        vmax=vmax,
+    )
+    ax.set_xlabel(xcol)
+    ax.set_ylabel(ycol)
+    ax.set_title(title + f"\n(color scale: {vmin:.3f}–{vmax:.3f})")
+    fig.colorbar(im, ax=ax, label="P(p1 wins)")
+    fig.savefig(out_png, bbox_inches="tight")
+    plt.close(fig)
+
+
+# ---- main ----
+df = pd.read_csv("csv/logit.csv").copy()
+
+# numeric + drop missing
+for c in ["p1_ht", "p2_ht", "win"]:
+    df[c] = pd.to_numeric(df[c], errors="coerce")
+df = df.dropna(subset=["p1_ht", "p2_ht", "win"])
+
+# Fit: probability depends on height difference
+model = smf.logit("win ~ I(p1_ht - p2_ht)", data=df).fit()
+
+# Heatmap ranges
+ht_vals = np.arange(160, 201, 1)
+
+matchup_heatmap(
+    model,
+    xcol="p1_ht",
+    ycol="p2_ht",
+    x_vals=ht_vals,
+    y_vals=ht_vals,
+    fixed={},  # no other covariates
+    title="Height matchup heatmap (p1_ht vs p2_ht)",
+    out_png="png/heatmap_height_160_200.png",
+    clip_quantiles=(0.02, 0.98),
+)
