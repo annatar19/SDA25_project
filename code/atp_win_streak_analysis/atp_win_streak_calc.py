@@ -42,9 +42,6 @@ def load_tennis_data(
     # All the .csv into 1, the loaded columns that is.
     return pd.concat(csvs, ignore_index=True)
 
-# load_data for 2000
-# df = pd.read_csv(usecols = ["tourney_id", "tourney_date", "winner_id", "loser_id", "match_num"]).dropna()
-
 df = load_tennis_data(path_pattern="./data/tennis_atp_data/unaltered_data/*", usecols = ["tourney_id", "tourney_date", "winner_id", "winner_rank_points", "loser_rank_points", "loser_id", "match_num"]).dropna()
 
 df["tourney_date"] = pd.to_datetime(df["tourney_date"], format="%Y%m%d")

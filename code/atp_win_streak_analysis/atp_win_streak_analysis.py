@@ -7,13 +7,16 @@ import statsmodels.api as sm
 from sklearn.datasets import make_classification
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score, roc_auc_score
 
 from collections import defaultdict
 
 RANDOM_SEED = 1
 
-def log_reg(df, x_col_name, y_col_name, plot=True):
+EXPERIMENT_NO = [1, 2, 3]
+PLOT_DATA = True
+
+def log_reg(df, x_col_name, y_col_name, plot=True, exp_no = None):
     if plot:
         plt.scatter(df[x_col_name], df[y_col_name])
         plt.show()
@@ -21,16 +24,29 @@ def log_reg(df, x_col_name, y_col_name, plot=True):
     x_val = df[[x_col_name]]
     y_val = df[y_col_name]
 
-    train_x, test_x, train_y, test_y = train_test_split(x_val, y_val, random_state = 42)
+    train_x, test_x, train_y, test_y = train_test_split(x_val, y_val, random_state = RANDOM_SEED)
 
     log_reg_high_rank_wins = LogisticRegression()
     log_reg_high_rank_wins.fit(train_x, train_y)
 
-    print(log_reg_high_rank_wins.coef_)
-    print(log_reg_high_rank_wins.intercept_)
+    if exp_no == None:
+        exp_no = ""
+
+    print(f"______________________________________\nResults experiment {exp_no}\n______________________________________\n")
+
+    print(f"Beta-coef: {log_reg_high_rank_wins.coef_}")
+    print(f"Intercept: {log_reg_high_rank_wins.intercept_}")
 
     pred_y = log_reg_high_rank_wins.predict(test_x)
-    print(confusion_matrix(test_y, pred_y))
+    pred_prob = log_reg_high_rank_wins.predict_proba(test_x)[:, 1]
+
+    print(f"\nConfusion mat:\n{confusion_matrix(test_y, pred_y)}\n")
+
+    acc = accuracy_score(test_y, pred_y)
+    print(f"Accuracy: {acc:.3f}")
+
+    auc = roc_auc_score(test_y, pred_prob)
+    print(f"ROC-AUC: {auc:.3f}")
 
 def add_shuffled_columns(df, col1, col2, new1, new2, seed=None):
     if seed is not None:
@@ -48,14 +64,11 @@ def add_shuffled_columns(df, col1, col2, new1, new2, seed=None):
 
     return df
 
-df = pd.read_csv("./code/atp_win_streak_analysis/matches_with_win_streaks.csv")
-
 # Experiment 1 / 2
 # This experiment will analyse any direct correlation between winning streak with either winning or losing a game.
 # It is expected that a high win streak will correlate to a higher probability of winning.
-# Barely any correlation was found. Thinking about it, this makes sense in tournaments. If you play in brackets, winstreaks and losing streaks should be quite similar
 
-def experiment1(df):
+def experiment1(df, plot=True):
     winner_streaks = df["winner_streak"]
     loser_streaks = df["loser_streak"]
     win_streaks = pd.concat([winner_streaks, loser_streaks])
@@ -65,7 +78,7 @@ def experiment1(df):
     df = pd.DataFrame.from_dict({"win_streak": win_streaks,
                                  "outcome": outcomes})
     
-    log_reg(df, "win_streak", "outcome")
+    log_reg(df, "win_streak", "outcome", plot=plot, exp_no = 1)
 
 # Experiment 2
 # For the second experiment I am curious about the probability of winning a match, given that you are on a certain win streak.
@@ -141,25 +154,20 @@ def experiment3_clean_and_bin(df):
     df_clean["rel_diff"] = (df_clean["playerA_rank_points"] - df_clean["playerB_rank_points"]) / df_clean["playerA_rank_points"]
     df_clean["skill_bin"] = pd.cut(df_clean["rel_diff"], bins=bins, labels=labels)
     df_clean["playerA_win"] = (df_clean["playerA_rank_points"] == df_clean["winner_rank_points"]).astype(int)
+    df_clean['playerA_streak'] = np.where(df_clean['playerA_rank_points'] == df_clean['winner_rank_points'],
+                                    df_clean['winner_streak'], df_clean['loser_streak'])
 
     return df_clean
 
 def experiment3_1():
-    df = pd.read_csv("./code/atp_win_streak_analysis/experiment3.csv")
-
-    # Ensure streak columns exist for playerA
-    # Here we assume playerA is always playerA_rank_points
-    # Create a column for playerA_streak based on winner/loser streak
-    # If playerA is the winner:
-    df['playerA_streak'] = np.where(df['playerA_rank_points'] == df['winner_rank_points'],
-                                    df['winner_streak'],
-                                    df['loser_streak'])
+    df = pd.read_csv("./code/atp_win_streak_analysis/experiment3_data.csv")
 
     # List of skill bins
-    skill_bins = df['skill_bin'].unique()
+    skill_bins = ["heavy_underdog", "moderate_underdog", "slight_underdog", "even",
+                  "slight_favorite", "moderate_favorite", "heavy_favorite"]
 
     # Dictionary to store results
-    results = {}
+    models = {}
 
     # Logistic regression per skill bin
     for bin_name in skill_bins:
@@ -169,14 +177,20 @@ def experiment3_1():
         X = sm.add_constant(bin_data['playerA_streak'])  # Add intercept
         y = bin_data['playerA_win']
         model = sm.Logit(y, X).fit(disp=0)
-        results[bin_name] = model
+        models[bin_name] = model
+    
+    return models, df
+
+def plot_experiment3_1(df, models):
+    skill_bins = ["heavy_underdog", "moderate_underdog", "slight_underdog", "even",
+                "slight_favorite", "moderate_favorite", "heavy_favorite"]
 
     # Prepare plot
     plt.figure(figsize=(10, 6))
 
     streak_range = range(int(df['playerA_streak'].min()), int(df['playerA_streak'].max()) + 1)
 
-    for bin_name, model in results.items():
+    for bin_name, model in models.items():
         X_pred = sm.add_constant(streak_range)
         y_pred = model.predict(X_pred)
         plt.plot(streak_range, y_pred, label=bin_name)
@@ -188,10 +202,40 @@ def experiment3_1():
     plt.grid(True)
     plt.show()
 
-experiment3_1()
+def print_experiment3_results(models):
+    pass
 
-# experiment1(df)
-# experiment2_1(df)
-# experiment2_2(df)
+def experiment3_2(plot=True):
+    df = pd.read_csv("./code/atp_win_streak_analysis/experiment3_data.csv")
+    skill_bins = ["heavy_underdog", "moderate_underdog", "slight_underdog", "even",
+                "slight_favorite", "moderate_favorite", "heavy_favorite"]
+    
+    for skill_bin in skill_bins:
+        bin_data = df[df['skill_bin'] == skill_bin]
+        print(f"----------------------\n{skill_bin}\n----------------------\n")
+        log_reg(bin_data, "playerA_streak", "playerA_win", plot=plot, exp_no = {skill_bin})
 
+def main():
+    tennis_df = pd.read_csv("./code/atp_win_streak_analysis/matches_with_win_streaks.csv")
 
+    if len(EXPERIMENT_NO) == 0 or len(EXPERIMENT_NO) > 3:
+        raise Exception("Invalid EXPERIMENT_NO length")
+
+    for exp_no in EXPERIMENT_NO:
+        if not isinstance(exp_no, int) or exp_no < 0 or exp_no > 3:
+            raise Exception("Invalid experiment number. Check EXPERIMENT_NO global")
+        
+        if exp_no == 1:
+            experiment1(tennis_df, plot=PLOT_DATA)
+        if exp_no == 2:
+            if PLOT_DATA:
+                experiment2_1(tennis_df)
+                experiment2_2(tennis_df)
+        if exp_no == 3:
+            models, bin_df = experiment3_1()
+            if PLOT_DATA:
+                plot_experiment3_1(bin_df, models)
+            experiment3_2(plot=PLOT_DATA)
+
+if __name__=="__main__":
+    main()

@@ -1,0 +1,52 @@
+_____________________________________________________________________________
+FILES
+_____________________________________________________________________________
+
+atp_win_streak_analysis.py      - The main analysis file
+atp_win_streak_calc.py          - Python script to produce matches_with_win_streaks.csv (calculates win streak per player)
+experiment3_data.csv            - CSV needed for experiment 3, includes player bins
+matches_with_win_streaks.csv    - CSV needed for experiment 1 and 2, includes calculated winstreaks
+notes.txt                       - General personal notes on the experiments, not very important
+
+
+_____________________________________________________________________________
+RUNNING EXPERIMENTS
+_____________________________________________________________________________
+
+Make sure to run the script from the root directory of the repository!
+
+To perform the experiments, run atp_win_streak_analysis.py
+By default, all exeriments will be ran. To specific run the experiments, change the list of experiment numbers in the global variable EXPERIMENT_NO. To run multiple experiments add all of their numbers in the list.
+By default, the experiments will create a scatterplot of the data. To turn this off set global PLOT_DATA to False
+
+In the terminal information of the experiment will be printed:
+- beta coeficient
+- intercept
+- confusion matrix
+- Accuracy
+- ROC-AUC
+
+
+_____________________________________________________________________________
+THE EXPERIMENTS
+_____________________________________________________________________________
+
+Experiment 1
+This experiment will analyse any direct correlation between winning streak with either winning or losing a game.
+It is expected that a high win streak will correlate to a higher probability of winning.
+No significant effect of winstreak was found:
+- Accuracy: 0.502
+- ROC-AUC: 0.503
+
+Experiment 2
+SET PLOT_DATA TO True FOR THIS EXPERIMENT
+For the second experiment I was curious about the probability of winning a match, given that you are on a certain win streak.
+For this I will calculate win-coefficient per win streak.
+Between experiment 2_1 and 2_2 is little difference. In the latter a slight laplace smoothing was used. No real difference in results
+
+This experiment was mainly to visualize the data. The plots created show increased win ratio if you are on a higher win streak.
+The plots can also be found here: ~/graphs/win_streak/Win_Rate.png and ~/graphs/win_streak/WinLossRatioEps0.5.png
+
+Experiment 3
+In experiment 2 the plots showed increased win ratio, but no real effect of win streak was found in experiment 1. This was slightly confusing. However after some deliberation it was theorized that win streak and player rank was highly correlated. For this reason I was curious if there was a difference in the effect of winstreak, when you compare between the relative rank of the two players.
+In experiment 3 this was investigated by binning the players based on their relative ranking points. This showed that for relative skill groups there seemed to be a large effect of win streak. (see ~/graphs/win_streak/Pwin_winstreak.png). Sadly when performing logistic regression for these groups (experiment 3_2), no significant effect was found. For some groups the accuracy of the models was higher, however, AUC scores remaind close to 0.5, indicating no real predictive benefit.

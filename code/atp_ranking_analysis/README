@@ -1,0 +1,44 @@
+For the ranking analysis a total of three experiments were done to maximize predictions based on the players ranks.
+Every experiment consisted of a logistic regression, performed on the dataset of matches from 1991 to 2025.
+Training and Testing data was split randomly in a 1:3 ratio
+
+_____________________________________________________________________________
+FILES
+_____________________________________________________________________________
+
+atp_ranking_matchoutcome         - The main analysis file
+notes.txt                       - General personal notes on the experiments, not very important
+
+_____________________________________________________________________________
+RUNNING EXPERIMENTS
+_____________________________________________________________________________
+
+Make sure to run the script from the root directory of the repository!
+
+To perform the experiments, run atp_win_streak_analysis.py
+By default, all exeriments will be ran. To specific run the experiments, change the list of experiment numbers in the global variable EXPERIMENT_NO. To run multiple experiments add all of their numbers in the list.
+By default, the experiments will create a scatterplot of the data. To turn this off set global PLOT_DATA to False
+
+In the terminal information of the experiment will be printed:
+- beta coeficient
+- intercept
+- confusion matrix
+- Accuracy
+- ROC-AUC
+
+_____________________________________________________________________________
+THE EXPERIMENTS
+_____________________________________________________________________________
+
+Experiment 1
+This experiment tried to link the absolute ranking difference to the probaility of the higher ranking player winning. As the confusion matrix shows, this was not very succesful due to a class imbalance effect. This is fixed in experiment 2
+
+Experiment 2
+In this experiment the class imbalance was fixed by changing the data from seperating winners and losers and shuffling them. Now we will have PlayerA and PlayerB, which has no further correlation with the match outcome. Again absolute differences between the players ranking points was used.
+A relatively high accuracy was achieved based on just this one factor: ±66%
+
+Experiment 3
+In this experiment I was curious if relative differences in ranking points would make any difference. The intuition was that an absolute ranking point difference of 100 point between players with 200 vs 300 points would make a larger difference than between players of 2000 vs 2100 points.
+To calculate the relative ranking points, the following formula was used: (PlayerA_ranking_points - PlayerB_ranking_points) / PlayerA_ranking_points. This resulted in the relative ranking difference from PlayerA perspective.
+
+Contrary to my prior intuition, the accuracy was actually consistently lower due to this. For this reason we continued with absolute ranking point differences.

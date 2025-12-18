@@ -1,6 +1,5 @@
 || Temporary text file for note taking ||
 
-Chappie prompt
 I want to correlate the ranking_points of two opponents in a tennis match to the match outcome (win/lose).
 The data is saved in such a way that for each recorded match you have two variables, winner_ranking_points and loser_ranking_points.
 
