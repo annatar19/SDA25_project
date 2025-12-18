@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from scipy import stats
 from pathlib import Path
 import matplotlib.pyplot as plt
 
@@ -9,10 +8,8 @@ PNG_DIR = "png"
 
 
 def init_out_dir():
-    p = Path(CSV_DIR)
-    p.mkdir(parents=True, exist_ok=True)
-    p = Path(PNG_DIR)
-    p.mkdir(parents=True, exist_ok=True)
+    Path(CSV_DIR).mkdir(parents=True, exist_ok=True)
+    Path(PNG_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def main():
@@ -26,73 +23,73 @@ def main():
     # keep only main tier
     main = df[df["tier"] == "main"].copy()
 
-    # Compute mean and CI for winners. Duplicates are fine now, lengths that win
-    # but then lose are canceled out that way.
-    groups = main.groupby(["year"])["winner_ht"]
-    # Creates an out dataframe with number of heights per group, their mean and
-    # std. reset_index Turns it into normal columns.
-    winners = groups.agg(n="count", mean="mean", std="std").reset_index()
+    # It shouldn't matter but it is nicer to have perfectly consistent plots.
+    rng = np.random.default_rng(0)
+    rows = []
+    # Amount of bootstrap samples. We have to use bootstrapping since heights
+    # of the same players across different matches are not independent of
+    # course.
+    N = 2000
+    # Since we use 95% CI.
+    alpha = 0.05
 
-    # The CI is computed using the Student's t-distribution:
-    # https://en.wikipedia.org/wiki/Confidence_interval
-    # Should be fine since height is normally distributed and n is large enough.
-    # Standard error.
-    winners["se"] = winners["std"] / np.sqrt(winners["n"])
-    # Two-sided 95% t-critical value with n-1 degrees of freedom
-    winners["tcrit"] = stats.t.ppf(0.975, df=winners["n"] - 1)
-    winners["ci_lower"] = winners["mean"] - winners["tcrit"] * winners["se"]
-    winners["ci_upper"] = winners["mean"] + winners["tcrit"] * winners["se"]
+    for year, group in main.groupby("year"):
+        winner_ht = group["winner_ht"].to_numpy()
+        loser_ht = group["loser_ht"].to_numpy()
+        # Amount of matches
+        n = len(group)
 
-    # Those columns were for computing, they are not useful for our conclusion.
-    winners = winners.drop(columns=["std", "se", "tcrit"]).sort_values(["year"])
+        # This is the actual difference in mean for the current year. The cast
+        # is so it is not some numpy datatype.
+        diff_mean = float(winner_ht.mean() - loser_ht.mean())
 
-    # Compute mean and CI for winners.
-    groups = main.groupby(["year"])["loser_ht"]
-    # Creates an out dataframe with number of heights per group, their mean and
-    # std. reset_index Turns it into normal columns.
-    losers = groups.agg(n="count", mean="mean", std="std").reset_index()
+        boots = np.empty(N)
+        idx = np.arange(n)
+        for b in range(N):
+            # Sample with replacement.
+            s = rng.choice(idx, size=n, replace=True)
+            # Compute the bootstrapped difference in mean.
+            boots[b] = winner_ht[s].mean() - loser_ht[s].mean()
 
-    # The CI is computed using the Student's t-distribution:
-    # https://en.wikipedia.org/wiki/Confidence_interval
-    # Should be fine since height is normally distributed and n is large enough.
-    # Standard error.
-    losers["se"] = losers["std"] / np.sqrt(losers["n"])
-    # Two-sided 95% t-critical value with n-1 degrees of freedom
-    losers["tcrit"] = stats.t.ppf(0.975, df=losers["n"] - 1)
-    losers["ci_lower"] = losers["mean"] - losers["tcrit"] * losers["se"]
-    losers["ci_upper"] = losers["mean"] + losers["tcrit"] * losers["se"]
+        # The lower 2.5%
+        ci_lower = float(np.quantile(boots, alpha / 2))
+        # The upper 97.5%
+        ci_upper = float(np.quantile(boots, 1 - alpha / 2))
 
-    # Those columns were for computing, they are not useful for our conclusion.
-    losers = losers.drop(columns=["std", "se", "tcrit"]).sort_values(["year"])
+        rows.append(
+            {
+                "year": int(year),
+                "n": n,
+                "diff_mean": diff_mean,
+                "ci_lower": ci_lower,
+                "ci_upper": ci_upper,
+            }
+        )
 
-    winners["cat"] = "winner"
-    losers["cat"] = "loser"
+    out = pd.DataFrame(rows).sort_values("year").reset_index(drop=True)
 
-    out = pd.concat([winners, losers], ignore_index=True)
-
-    out.to_csv(f"{CSV_DIR}/winner_loser_ht_mean.csv")
+    out.to_csv(f"{CSV_DIR}/winner_loser_ht_mean.csv", index=False)
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    for category, group in out.groupby("cat"):
-        group = group.sort_values("year")
-        x = group["year"]
-        y = group["mean"]
+    x = out["year"]
+    y = out["diff_mean"]
 
-        ax.plot(x, y, label=f"{category} mean height")
+    ax.plot(x, y, color="green", label=f"Difference in mean height.")
 
-        ax.fill_between(
-            x,
-            group["ci_lower"],
-            group["ci_upper"],
-            alpha=0.2,
-            label=f"{category} 95% CI",
-        )
+    ax.fill_between(
+        x,
+        out["ci_lower"],
+        out["ci_upper"],
+        color="green",
+        alpha=0.2,
+        label=f"95% CI",
+    )
 
     ax.legend()
     ax.grid(True)
-    ax.set_title(f"Main tier: winner vs loser mean height per year (95% CI)")
+    ax.set_title(f"Main tier: winner vs loser mean height difference per year (95% CI)")
     ax.set_xlabel("Year")
-    ax.set_ylabel("Height (cm)")
+    ax.set_ylabel("Difference mean height (cm)")
     fig.savefig(f"{PNG_DIR}/winner_loser_ht_mean.png", bbox_inches="tight")
     return 0
 
