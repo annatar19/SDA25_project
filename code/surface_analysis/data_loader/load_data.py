@@ -5,7 +5,7 @@ import re
 
 
 def load_tennis_data(
-    path_pattern="../data/tennis_atp_data/unaltered_data/*",
+    path_pattern="../../data/tennis_atp_data/unaltered_data/*",
     regex_pattern=r"/atp_matches_\d{4}.csv",
     usecols=None,
 ):

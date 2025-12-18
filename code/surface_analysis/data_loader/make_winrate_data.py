@@ -25,16 +25,17 @@ class Tenisser:
         total_matches = self.surface_matches[surface]["wins"] + self.surface_matches[surface]["losses"]
 
         # MOET EEN FIX VOOR DIT
-        if total_matches < 15:
-            return 0.5
+        # if total_matches < 15:
+        #     return 0.5
         
-        return self.surface_matches[surface]["wins"] / total_matches
+        # laplace to avoid 0's
+        return (self.surface_matches[surface]["wins"] + 1) / (total_matches + 2)
 
 
 def main():
-    # data is from 1997 to 2024
+    # data is from 1991 to 2024
     data = load_tennis_data(path_pattern="../../../data/tennis_atp_data/unaltered_data/*",
-                            regex_pattern=r"/atp_matches_(199[7-9]|20[0-1][0-9]|202[0-4])\.csv")
+                            regex_pattern=r"/atp_matches_(198[0-9]|199[0-9]|20[0-1][0-9]|202[0-4])\.csv")
     data = data[data['surface'].isin(['Hard','Clay','Grass'])]
     # print(1, len(data))
 
@@ -59,40 +60,37 @@ def main():
         winner_winrate = tenissers[row['winner_id']].get_winrate(row['surface'])
         loser_winrate = tenissers[row['loser_id']].get_winrate(row['surface'])
 
-        new_row_win = {
-            'tourney_date': row['tourney_date'],
-            'surface': row['surface'],
-            'p1_id': row['winner_id'],
-            'p2_id': row['loser_id'],
-            'p1_name': row['winner_name'],
-            'p2_name': row['loser_name'],
-            'p1_surface_winrate': winner_winrate,
-            'p2_surface_winrate': loser_winrate,
-            'p1_rank': row['winner_rank'],
-            'p2_rank': row['loser_rank'],
-            'rank_diff': row['loser_rank'] - row['winner_rank'],
-            'winrate_diff': winner_winrate - loser_winrate,
-            'player1_won': 1
-        }
+        if row['tourney_date'] >= 19910101:
+            new_row_win = {
+                'tourney_date': row['tourney_date'],
+                'surface': row['surface'],
+                'p1_id': row['winner_id'],
+                'p2_id': row['loser_id'],
+                'p1_name': row['winner_name'],
+                'p2_name': row['loser_name'],
+                'p1_surface_winrate': winner_winrate,
+                'p2_surface_winrate': loser_winrate,
+                'p1_rank': row['winner_rank'],
+                'p2_rank': row['loser_rank'],
+                'player1_won': 1
+            }
 
-        new_row_loss = {
-            'tourney_date': row['tourney_date'],
-            'surface': row['surface'],
-            'p1_id': row['loser_id'],
-            'p2_id': row['winner_id'],
-            'p1_name': row['winner_name'],
-            'p2_name': row['loser_name'],
-            'p1_surface_winrate': loser_winrate,
-            'p2_surface_winrate': winner_winrate,
-            'p1_rank': row['loser_rank'],
-            'p2_rank': row['winner_rank'],
-            'rank_diff': row['winner_rank'] - row['loser_rank'],
-            'winrate_diff': loser_winrate - winner_winrate,
-            'player1_won': 0
-        }
-        
-        new_rows.append(new_row_win)
-        new_rows.append(new_row_loss)
+            new_row_loss = {
+                'tourney_date': row['tourney_date'],
+                'surface': row['surface'],
+                'p1_id': row['loser_id'],
+                'p2_id': row['winner_id'],
+                'p1_name': row['loser_name'],
+                'p2_name': row['winner_name'],
+                'p1_surface_winrate': loser_winrate,
+                'p2_surface_winrate': winner_winrate,
+                'p1_rank': row['loser_rank'],
+                'p2_rank': row['winner_rank'],
+                'player1_won': 0
+            }
+
+            new_rows.append(new_row_win)
+            new_rows.append(new_row_loss)
 
         tenissers[row['winner_id']].update_winrate(row['surface'], 1)
         tenissers[row['loser_id']].update_winrate(row['surface'], 0)
@@ -100,7 +98,7 @@ def main():
     data = pd.DataFrame(new_rows)
     data = data.dropna(subset=['p1_rank', 'p2_rank', 'p1_surface_winrate', 'p2_surface_winrate'])
     # print(2, len(data)//2)
-    data.to_csv("surface_winrate_dataset.csv", index=False)
+    data.to_csv("../../../data/tennis_atp_data/altered_data/surface_winrate_dataset.csv", index=False)
     print(f"data size: {len(data)}")
 
     # quick overview of how rows look like                                                                                                                                                                                                

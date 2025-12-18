@@ -6,9 +6,9 @@ from sklearn.metrics import accuracy_score, roc_auc_score
 
 def load_data_wr(path):
     data = pd.read_csv(path)
-    # this to check only for close matches, so rank difference of only 50 or lower
+    # this to check only for close matches
     # so i can check the effect of winrate better
-    return data[data['rank_diff'].abs() <= 50]
+    return data[(data['p2_rank'] - data['p1_rank']).abs() <= 100]
 
 def split_train_test(data):
     # splitting in chronological order as its a timer series
@@ -21,7 +21,7 @@ def fitlogit(formule, train_data, test_data, model_name):
     model = smf.logit(formule, train_data).fit(disp=0)
     print(f"\n{model_name}")
     # prints pvalue
-    # print(model.summary()) # too much for now so commented out
+    print(model.summary()) # too much for now so commented out
 
     y_test = test_data['player1_won']
     y_pred_prob = model.predict(test_data)
@@ -34,25 +34,23 @@ def fitlogit(formule, train_data, test_data, model_name):
     return model
 
 def main():
-    data = load_data_wr("data_loader/surface_winrate_dataset.csv")
+    data = load_data_wr("../../data/tennis_atp_data/altered_data/surface_winrate_dataset.csv")
 
-    # model on each surface. Check for imrpovementscle
+    # model on each surface. Check for imrpovements
+    # can remove this if u want only overall
     surfaces = ['Hard', 'Clay', 'Grass']
     for s in surfaces:
         data_surf = data[data['surface'] == s]
         train_data, test_data = split_train_test(data_surf)
 
-        fitlogit("player1_won ~ rank_diff",
-            train_data, test_data,
-            f"Rank diff only (surface is {s})")
+        # formula_rank = "player1_won ~ I(p2_rank - p1_rank)"
+        # fitlogit(formula_rank, train_data, test_data, f"Rank difference only (surface={s})")
 
-        fitlogit("player1_won ~ winrate_diff",
-            train_data, test_data,
-            f"Winrate diff only (surface is {s})")
+        # formula_winrate = "player1_won ~ I(p1_surface_winrate - p2_surface_winrate)"
+        # fitlogit(formula_winrate, train_data, test_data, f"Surface winrate difference only (surface={s})")
 
-        fitlogit("player1_won ~ rank_diff + winrate_diff",
-            train_data, test_data,
-            f"rank and winrate diff (surface is {s})")
+        formula = "player1_won ~ I(p2_rank - p1_rank) + I(p1_surface_winrate - p2_surface_winrate)"
+        fitlogit(formula, train_data, test_data, f"Rank & Winrate differences (surface={s})")
 
 
 if __name__ == "__main__":
