@@ -10,7 +10,7 @@ The folder containts the following folders
 
 ## Usage of load_data.py and make_winrate_data.py in data_loader folder
 
-### load_data.py:
+#### load_data.py:
 
 - `input`: all ATP singles csv files in `../../../data/tennis_atp_data/unaltered_data`
 - `output`: a single DataFrame containing all csv files from a range of years defined by the parameter regex_pattern
@@ -20,14 +20,12 @@ path_pattern, no need for change it is the default path to csv files
 regex_pattern, defines which year range of csvs to use
 usecols, defines which columns to keep in output
 
--
-
-### make_winrate_data.py:
+#### make_winrate_data.py:
 
 - `input`: DataFrame from `load_data.py`
-- `output`: preprocessed csv with added winrate_diff, rank_diff and result (player 1 wins) used for logit model in `surface_winrates_analysis.py`
+- `output`: preprocessed csv with added surface_winrate for each player and result (player 1 wins) needed for logistic regression model in `surface_winrates_analysis.py`
 
-- `Core process`:
+`Core process`:
 1. Sorts code chronologically, making sure matches are processed in time order, for correct calculation of surface winrate
 2. Uses `Tenisser` class to track wins/losses per surface for each player. Only for the surfaces Grass, Hard and Clay. As carpet is not played on anymore and thus not of use for predicting modern matches
 3. Uses laplace smoothing to avoid extreme values when players have very few matches (newcomers)
@@ -36,12 +34,12 @@ usecols, defines which columns to keep in output
 
 ## Usage of surface_acerates_analysis.py and surface_winrates_analysis.py in main folder
 
-### surface_winrates_analysis.py:
+#### surface_winrates_analysis.py:
 
 - `input`: preprocessed CSV from `make_winrate_data.py` (`../../data/tennis_atp_data/altered_data/surface_winrate_dataset.csv`)
 - `output`: Console print of logistic regression model summary and corresponding ROC AUC and Accuracy. Might add a file output to this
 
-- `Core process`:
+`Core process`:
 1. Load `surface_winrate_dataset.csv` and ability to adjust `    return data[data['rank_diff'].abs() <= 50]` to check for either closes matches that is a rank difference of 50. or set it to infinite to test without filter. Allows for focusing more on effect of surface winrate
 2. Split data chronologically into training (first 80% of data) and test sets (last 20%) to preserve the time series. As training on future years to then accidentaly both test on past and future years makes no sense.
 3. fit logistic regression per surface, since surfaces do differ it would be nice to see whether we see it back in the metrics.
@@ -52,9 +50,9 @@ usecols, defines which columns to keep in output
 4. Evaluates each model on the test set using:
 Accuracy, ROC AUC and summaries of regression
 
-### surface_acerates_analysis.py:
+#### surface_acerates_analysis.py:
 
 - `input`: 
 - `output`:
 
-- `Core process`:
+`Core process`:
