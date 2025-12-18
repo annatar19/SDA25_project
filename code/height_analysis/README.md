@@ -3,6 +3,7 @@
 - `height_analyse_winner_loser.py` Analyses the difference in average heights between winners and losers in the main tier and saves the result to `winner_loser_ht_mean.csv` as well as a plot in `png/winner_loser_ht_mean.png`.
 - `logit_csv.py` Converts the height data to a form useful for training the logistic regression models. Result is stored in `csv/logit.csv`
 - `model.py` Tests various Patsy formulas for the logistic regression model and stores the results in `csv/model_results.csv`
+- `run_all.sh` Runs all the above scripts.
 - `heatmap.py` Was experimental code used to view the results of the logistic regression. It is unused.
 - `csv/` Contains all the `.csv ` files.
 - `png/` Contains all the plots.

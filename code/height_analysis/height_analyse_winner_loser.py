@@ -85,6 +85,7 @@ def main():
         label=f"95% CI",
     )
 
+    ax.axhline(0, linewidth=1, color="black")
     ax.legend()
     ax.grid(True)
     ax.set_title(f"Main tier: winner vs loser mean height difference per year (95% CI)")
