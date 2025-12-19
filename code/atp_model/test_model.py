@@ -1,4 +1,5 @@
 import pandas as pd
+from scipy.stats import binomtest
 import numpy as np
 import matplotlib.pyplot as plt
 import re
@@ -92,32 +93,33 @@ def get_formulas():
         I(p1_streak - p2_streak)
     """
     )
-    
+
     # Highest accuracy matched with the best age height formula.
     formulas.append(
-        """result ~ 
-        C(surface) + 
-        C(p1_handedness) + C(p2_handedness) + 
-        C(p1_archetype) + C(p2_archetype) + 
-        C(p1_favor) * p1_streak + 
-        bs(p1_age, df=6) + bs(p2_age, df=6) + 
-        bs(p1_ht, df=6) + bs(p2_ht, df=6) + 
-        rel_ranking_points + 
-        I(p1_surface_winrate - p2_surface_winrate) + 
+        """result ~
+        C(surface) +
+        C(p1_handedness) + C(p2_handedness) +
+        C(p1_archetype) + C(p2_archetype) +
+        C(p1_favor) * p1_streak +
+        bs(p1_age, df=6) + bs(p2_age, df=6) +
+        bs(p1_ht, df=6) + bs(p2_ht, df=6) +
+        rel_ranking_points +
+        I(p1_surface_winrate - p2_surface_winrate) +
         I(p1_streak - p2_streak)"""
     )
 
-    # Highest accuracy matched with the best age height formula + absolute ranking points, no more relative. Slightly higher AUC
+    # Highest accuracy matched with the best age height formula + absolute
+    # ranking points, no more relative. Slightly higher AUC
     formulas.append(
-        """result ~ 
-        C(surface) + 
-        C(p1_handedness) + C(p2_handedness) + 
-        C(p1_archetype) + C(p2_archetype) + 
-        C(p1_favor) * p1_streak + 
-        bs(p1_age, df=6) + bs(p2_age, df=6) + 
-        bs(p1_ht, df=6) + bs(p2_ht, df=6) + 
-        abs_ranking_points + 
-        I(p1_surface_winrate - p2_surface_winrate) + 
+        """result ~
+        C(surface) +
+        C(p1_handedness) + C(p2_handedness) +
+        C(p1_archetype) + C(p2_archetype) +
+        C(p1_favor) * p1_streak +
+        bs(p1_age, df=6) + bs(p2_age, df=6) +
+        bs(p1_ht, df=6) + bs(p2_ht, df=6) +
+        abs_ranking_points +
+        I(p1_surface_winrate - p2_surface_winrate) +
         I(p1_streak - p2_streak)"""
     )
 
@@ -136,15 +138,21 @@ def test(train_df, test_df, formulas):
         y = test_df["result"].astype(int).values
         y_hat = (p >= 0.5).astype(int)
 
+        # How likely would this accuracy be with guesses? Even amount of wins
+        # and losses.
+        k = int((y_hat == y).sum())
+        pval_vs_50 = binomtest(k, len(y), p=0.5, alternative="greater").pvalue
+
         row = {
             "formula_no": i,
             "formula": formula,
-            "accuracy_score": accuracy_score(y, y_hat),
+            "accuracy_score": round(accuracy_score(y, y_hat) * 100, 2),
             "log_loss": log_loss(y, p),
             "brier_score_loss": brier_score_loss(y, p),
             "roc_auc_score": roc_auc_score(y, p),
+            "pval_acc_gt_50": pval_vs_50,
         }
-        print(f"accuracy: {round(row["accuracy_score"]* 100, 2)}")
+        print(f"accuracy: {row["accuracy_score"]}")
         print(f"logloss: {row["log_loss"]}")
         print(f"brier: {row["brier_score_loss"]}")
         print(f"auc: {row["roc_auc_score"]}")
@@ -177,6 +185,8 @@ def main():
 
     train_df = df.loc[is_train_year].copy()
     test_df = df.loc[is_test_year].copy()
+    print(f"Test set length: {len(test_df)}")
+    print("Test positive rate:", test_df["result"].mean())
     formulas = get_formulas()
 
     rows = test(train_df, test_df, formulas)
@@ -191,6 +201,7 @@ def main():
             "formula_no",
             "formula",
             "accuracy_score",
+            "pval_acc_gt_50",
             "log_loss",
             "brier_score_loss",
             "roc_auc_score",
