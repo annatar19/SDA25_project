@@ -249,8 +249,8 @@ def add_surface_winrates(data):
     df = df.sort_values("tourney_date").reset_index(drop=True)
 
     # wouldve preferred doing it with classes as its cleaner for me
-    # tracking tennissers wins and losses per surface
-    tennissers = {}
+    # tracking player wins and losses per surface
+    players = {}
     wr_p1 = []
     wr_p2 = []
 
@@ -260,9 +260,9 @@ def add_surface_winrates(data):
         result = row["result"]
 
         for player_id in [p1_id, p2_id]:
-            if player_id not in tennissers:
+            if player_id not in players:
                 # tennissers wins and losses per surface
-                tennissers[player_id] = {
+                players[player_id] = {
                     "Grass": {"wins": 0, "losses": 0},
                     "Hard": {"wins": 0, "losses": 0},
                     "Clay": {"wins": 0, "losses": 0},
@@ -270,15 +270,15 @@ def add_surface_winrates(data):
 
         for player_id, list_wr in [(p1_id, wr_p1), (p2_id, wr_p2)]:
             total = (
-                tennissers[player_id][surface]["wins"]
-                + tennissers[player_id][surface]["losses"]
+                players[player_id][surface]["wins"]
+                + players[player_id][surface]["losses"]
             )
-            # if total plauyed matches on that surface is under 10 make winrate 0.5
-            wr = (tennissers[player_id][surface]["wins"] + 1) / (total + 2)
+            # if total played matches on that surface is under 10 make winrate 0.5
+            wr = (players[player_id][surface]["wins"] + 1) / (total + 2)
             list_wr.append(wr)
 
-        tennissers[p1_id][surface]["wins" if result == 1 else "losses"] += 1
-        tennissers[p2_id][surface]["wins" if result == 0 else "losses"] += 1
+        players[p1_id][surface]["wins" if result == 1 else "losses"] += 1
+        players[p2_id][surface]["wins" if result == 0 else "losses"] += 1
 
     df["p1_surface_winrate"] = wr_p1
     df["p2_surface_winrate"] = wr_p2
