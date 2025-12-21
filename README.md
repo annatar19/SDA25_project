@@ -27,9 +27,12 @@ SDA25_project
 │   ├── atp_win_streak_analysis
 │   ├── height_analysis
 │   └── surface_analysis
-├── data
+├── data                          # csv
 │   ├── tennis_atp_data           # Male tennis
+│   │   ├── altered_data          # Our analysis results
+│   │   └── unaltered_data        # The raw initial data
 │   └── tennis_wta_data           # Female tennis
+│       └── unaltered_data
 ├── graphs
 │   ├── archetype
 │   ├── hand
@@ -37,7 +40,7 @@ SDA25_project
 │   ├── ranking
 │   ├── surface
 │   └── win_streak
-├── rulebook.pdf                   
+├── rulebook.pdf
 ├── README.md                      # YOU ARE HERE
 ├── requirements.txt               # Python dependencies
 └── SDA_2025_presentation.pdf      # Final presentation
@@ -72,10 +75,10 @@ Ensures consistent formatting across the all code.
 
 ## Data Sources
 
-- WTA Data:  
+- WTA Data:
   https://github.com/JeffSackmann/tennis_wta
 
-- ATP Data:  
+- ATP Data:
   https://github.com/JeffSackmann/tennis_atp
 
 ---
@@ -96,7 +99,7 @@ Sebas van Waard
 ---
 ## Clarifying answers to questions from the presentation
 
-**Q1: Why don't the win rates in the archetype graphs add up to 100% ?**  
+**Q1: Why don't the win rates in the archetype graphs add up to 100% ?**
 **A1:** The win rates don't add up to 100% because they're independent win probabilities, not part
 of a single total. Each value answers: "What is the chance this archetype wins a match?"
 Percentages only sum up to 100% when they describe all possible outcomes of the same event.
