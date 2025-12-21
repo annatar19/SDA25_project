@@ -12,6 +12,8 @@ The repository is organized into modular folders:
 - `data/`: Unaltered and altered tennis datasets, organized for clarity.
 - `graphs/`: Generated figures and plots
 
+The 3 folders are further divided according to the different analyses we performed. Each of the subfolders of `code/` contains its own README describing the analysis performed.
+
 ---
 
 ## Project structure
