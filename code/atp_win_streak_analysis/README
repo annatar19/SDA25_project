@@ -4,10 +4,7 @@ _____________________________________________________________________________
 
 atp_win_streak_analysis.py      - The main analysis file
 atp_win_streak_calc.py          - Python script to produce matches_with_win_streaks.csv (calculates win streak per player)
-experiment3_data.csv            - CSV needed for experiment 3, includes player bins
-matches_with_win_streaks.csv    - CSV needed for experiment 1 and 2, includes calculated winstreaks
 notes.txt                       - General personal notes on the experiments, not very important
-
 
 _____________________________________________________________________________
 RUNNING EXPERIMENTS
@@ -26,7 +23,7 @@ In the terminal information of the experiment will be printed:
 - Accuracy
 - ROC-AUC
 
-
+Before running atp_win_streak_analysis.py, run atp_win_streak_calc.py to make sure the datafile is present.
 _____________________________________________________________________________
 THE EXPERIMENTS
 _____________________________________________________________________________

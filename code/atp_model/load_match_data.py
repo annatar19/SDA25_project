@@ -404,7 +404,9 @@ def add_absolute_ranking_points(data):
 
 if __name__ == "__main__":
     RAW_MATCHES_GLOB = "../../data/tennis_atp_data/unaltered_data/*"
-    ARCHETYPES_CSV = "../atp_match_length_analysis/matches_with_archetypes.csv"
+    ARCHETYPES_CSV = (
+        "../../data/tennis_atp_data/altered_data/archetype/matches_with_archetypes.csv"
+    )
     OUTPUT_CSV = (
         "../../data/tennis_atp_data/altered_data/atp_player_pairs_1991_2024.csv"
     )

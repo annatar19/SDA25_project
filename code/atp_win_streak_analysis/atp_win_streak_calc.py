@@ -3,6 +3,8 @@ import glob
 import re
 
 from collections import defaultdict
+import os.path
+
 
 def load_tennis_data(
     path_pattern="../data/tennis_atp_data/unaltered_data/*",
@@ -42,27 +44,33 @@ def load_tennis_data(
     # All the .csv into 1, the loaded columns that is.
     return pd.concat(csvs, ignore_index=True)
 
-df = load_tennis_data(path_pattern="./data/tennis_atp_data/unaltered_data/*", usecols = ["tourney_id", "tourney_date", "winner_id", "winner_rank_points", "loser_rank_points", "loser_id", "match_num"]).dropna()
 
-df["tourney_date"] = pd.to_datetime(df["tourney_date"], format="%Y%m%d")
+if not os.path.isfile("./data/tennis_atp_data/altered_data/win_streak/matches_with_win_streaks.csv"):
+    df = load_tennis_data(path_pattern="./data/tennis_atp_data/unaltered_data/*",
+                          usecols=["tourney_id", "tourney_date", "winner_id",
+                                   "winner_rank_points", "loser_rank_points",
+                                   "loser_id", "match_num"]).dropna()
 
-df = df.sort_values(["tourney_date", "match_num"]).reset_index(drop=True)
+    df["tourney_date"] = pd.to_datetime(df["tourney_date"], format="%Y%m%d")
 
-win_streak_dict = defaultdict(int)
-winner_streaks = []
-loser_streaks = []
+    df = df.sort_values(["tourney_date", "match_num"]).reset_index(drop=True)
 
-for _, row in df.iterrows():
-    winner = row["winner_id"]
-    loser = row["loser_id"]
+    win_streak_dict = defaultdict(int)
+    winner_streaks = []
+    loser_streaks = []
 
-    winner_streaks.append(win_streak_dict[winner])
-    loser_streaks.append(win_streak_dict[loser])
+    for _, row in df.iterrows():
+        winner = row["winner_id"]
+        loser = row["loser_id"]
 
-    win_streak_dict[winner] += 1
-    win_streak_dict[loser] = 0
+        winner_streaks.append(win_streak_dict[winner])
+        loser_streaks.append(win_streak_dict[loser])
 
-df["winner_streak"] = winner_streaks
-df["loser_streak"] = loser_streaks
+        win_streak_dict[winner] += 1
+        win_streak_dict[loser] = 0
 
-df.to_csv("matches_with_win_streaks.csv", index=False)
+    df["winner_streak"] = winner_streaks
+    df["loser_streak"] = loser_streaks
+
+    df.to_csv("./data/tennis_atp_data/altered_data/win_streak/matches_with_win_streaks.csv",
+              index=False)

@@ -19,7 +19,7 @@ def init_out_dir():
 
 def main():
     print("Building the logit csv…")
-    path = Path(f"{CSV_DIR}/data.csv")
+    path = Path(f"{CSV_DIR}/height_data.csv")
     if not path.is_file():
         print(
             "heigh_data.csv Is missing, please run data_csv.py before running this script."
@@ -75,7 +75,7 @@ def main():
     percent /= n
     percent *= 100
     print(
-        f"Dropped {n-len(logit)} entries containing NaN, which was {round(percent, 1)}%."
+        f"\tDropped {n-len(logit)} entries containing NaN, which was {round(percent, 1)}%."
     )
 
     print(f"\tWritning the logit csv to {CSV_DIR}/logit.csv…")

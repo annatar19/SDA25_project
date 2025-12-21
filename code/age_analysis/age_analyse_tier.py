@@ -1,24 +1,35 @@
+"""
+Author: Stijn Jongbloed - 12902667
+
+This file contains the code to analyse the difference of the mean age per year
+per tier as well as the code to see if said differences are statistically
+significant.
+"""
+
 import numpy as np
 import pandas as pd
 from scipy import stats
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-CSV_DIR = "csv"
-PNG_DIR = "png"
+# Originally the in- and output was stored within a directory next to the code,
+# but it was decided to seperate data and code.
+CSV_DIR = "../../data/tennis_atp_data/altered_data/age_analysis"
+PNG_DIR = "../../graphs/age_analysis"
 
 
 def init_out_dir():
-    p = Path(CSV_DIR)
-    p.mkdir(parents=True, exist_ok=True)
-    p = Path(PNG_DIR)
-    p.mkdir(parents=True, exist_ok=True)
+    Path(CSV_DIR).mkdir(parents=True, exist_ok=True)
+    Path(PNG_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def main():
+    print("Starting the age year tier difference analysis…")
     path = Path(f"{CSV_DIR}/data.csv")
     if not path.is_file():
-        print("data.csv Is missing, please run data_csv.py before running this script.")
+        print(
+            "\tdata.csv Is missing, please run data_csv.py before running this script."
+        )
         return 1
     init_out_dir()
     df = pd.read_csv(path)
@@ -56,6 +67,8 @@ def main():
 
     # Those columns were for computing, they are not useful for our conclusion.
     out = out.drop(columns=["std", "se", "tcrit"]).sort_values(["tier", "year"])
+
+    print(f"\tWriting the analysis result to {CSV_DIR}/age_tier_stats.csv…")
     out.to_csv(f"{CSV_DIR}/age_tier_stats.csv")
 
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -76,7 +89,9 @@ def main():
     ax.set_ylabel("Age (years)")
 
     fig.savefig(f"{PNG_DIR}/age_stats_tier.png", bbox_inches="tight")
-    print(f"Saved the plot to {PNG_DIR}/age_stats_tier.png")
+    print(f"Saved the plot to {PNG_DIR}/age_stats_tier.png…")
+    print("Done with the age year tier difference analysis!\n")
+
     return 0
 
 

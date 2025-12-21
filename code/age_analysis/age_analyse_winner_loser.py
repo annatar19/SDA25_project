@@ -1,23 +1,34 @@
+"""
+Author: Stijn Jongbloed - 12902667
+
+This file contains the code to analyse the difference of the mean age of
+winners and mean age of losers of the main tier per year, as well as code
+to see if it is statistically significant.
+"""
+
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-CSV_DIR = "csv"
-PNG_DIR = "png"
+# Originally the in- and output was stored within a directory next to the code,
+# but it was decided to seperate data and code.
+CSV_DIR = "../../data/tennis_atp_data/altered_data/age_analysis"
+PNG_DIR = "../../graphs/age_analysis"
 
 
 def init_out_dir():
-    p = Path(CSV_DIR)
-    p.mkdir(parents=True, exist_ok=True)
-    p = Path(PNG_DIR)
-    p.mkdir(parents=True, exist_ok=True)
+    Path(CSV_DIR).mkdir(parents=True, exist_ok=True)
+    Path(PNG_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def main():
+    print("Starting the age year main tier winner loser mean age difference analysis…")
     path = Path(f"{CSV_DIR}/data.csv")
     if not path.is_file():
-        print("data.csv Is missing, please run data_csv.py before running this script.")
+        print(
+            "\tdata.csv Is missing, please run data_csv.py before running this script."
+        )
         return 1
     init_out_dir()
     df = pd.read_csv(path)
@@ -70,6 +81,7 @@ def main():
 
     out = pd.DataFrame(rows).sort_values("year").reset_index(drop=True)
 
+    print(f"\tWriting the analysis result to {CSV_DIR}/winner_loser_age_mean.csv")
     out.to_csv(f"{CSV_DIR}/winner_loser_age_mean.csv", index=False)
     fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -93,7 +105,12 @@ def main():
     ax.set_title("Main tier: winner vs loser mean age difference per year (95% CI)")
     ax.set_xlabel("Year")
     ax.set_ylabel("Difference mean age (Years)")
+
+    print(f"\tWriting the analysis result to {PNG_DIR}/winner_loser_age_mean.png")
     fig.savefig(f"{PNG_DIR}/winner_loser_age_mean.png", bbox_inches="tight")
+    print(
+        "Done with the age year main tier winner loser mean age difference analysis!\n"
+    )
 
     return 0
 
