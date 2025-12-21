@@ -27,9 +27,6 @@ SDA25_project
 │   ├── atp_win_streak_analysis
 │   ├── height_analysis
 │   └── surface_analysis
-├── data
-│   ├── tennis_atp_data
-│   └── tennis_wta_data
 ├── data                          # csv
 │   ├── tennis_atp_data           # Male tennis
 │   │   ├── altered_data          # Our analysis results
