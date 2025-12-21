@@ -45,7 +45,7 @@ def load_tennis_data(
     return pd.concat(csvs, ignore_index=True)
 
 
-if not os.path.isfile("./data/tennis_atp_data/altered_data/matches_with_win_streaks.csv"):
+if not os.path.isfile("./data/tennis_atp_data/altered_data/win_streak/matches_with_win_streaks.csv"):
     df = load_tennis_data(path_pattern="./data/tennis_atp_data/unaltered_data/*",
                           usecols=["tourney_id", "tourney_date", "winner_id",
                                    "winner_rank_points", "loser_rank_points",
@@ -72,4 +72,5 @@ if not os.path.isfile("./data/tennis_atp_data/altered_data/matches_with_win_stre
     df["winner_streak"] = winner_streaks
     df["loser_streak"] = loser_streaks
 
-    df.to_csv("./data/tennis_atp_data/altered_data/matches_with_win_streaks.csv", index=False)
+    df.to_csv("./data/tennis_atp_data/altered_data/win_streak/matches_with_win_streaks.csv",
+              index=False)

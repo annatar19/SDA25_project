@@ -188,11 +188,11 @@ def experiment3_clean_and_bin(df):
                                           df_clean['winner_rank_points'],
                                           df_clean['winner_streak'], df_clean['loser_streak'])
 
-    df_clean.to_csv("./data/tennis_atp_data/altered_data/experiment3_data.csv", index=False)
+    df_clean.to_csv("./data/tennis_atp_data/altered_data/win_streak/experiment3_data.csv", index=False)
 
 
 def experiment3_1():
-    df = pd.read_csv("./data/tennis_atp_data/altered_data/experiment3_data.csv")
+    df = pd.read_csv("./data/tennis_atp_data/altered_data/win_streak/experiment3_data.csv")
 
     # List of skill bins
     skill_bins = ["heavy_underdog", "moderate_underdog", "slight_underdog", "even",
@@ -234,7 +234,7 @@ def plot_experiment3_1(df, models):
 
 
 def experiment3_2(plot=True):
-    df = pd.read_csv("./data/tennis_atp_data/altered_data/experiment3_data.csv")
+    df = pd.read_csv("./data/tennis_atp_data/altered_data/win_streak/experiment3_data.csv")
     skill_bins = ["heavy_underdog", "moderate_underdog", "slight_underdog", "even",
                   "slight_favorite", "moderate_favorite", "heavy_favorite"]
 
@@ -245,9 +245,9 @@ def experiment3_2(plot=True):
 
 
 def main():
-    tennis_df = pd.read_csv("./data/tennis_atp_data/altered_data/matches_with_win_streaks.csv")
+    tennis_df = pd.read_csv("./data/tennis_atp_data/altered_data/win_streak/matches_with_win_streaks.csv")
 
-    if not os.path.isfile("./data/tennis_atp_data/altered_data/experiment3_data"):
+    if not os.path.isfile("./data/tennis_atp_data/altered_data/win_streak/experiment3_data"):
         experiment3_clean_and_bin(tennis_df)
 
     if len(EXPERIMENT_NO) == 0 or len(EXPERIMENT_NO) > 3:

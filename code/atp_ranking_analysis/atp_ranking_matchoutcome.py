@@ -242,7 +242,8 @@ def experiment3(tennis_df, plot=True):
     # remove 0 ranking_point values
     df = df[df["playerA_rank_points"] != 0]
 
-    df["rel_dif_score"] = (df["playerA_rank_points"] - df["playerB_rank_points"]) / df["playerA_rank_points"]
+    df["rel_dif_score"] = (df["playerA_rank_points"] -
+                           df["playerB_rank_points"]) / df["playerA_rank_points"]
     df["playerA_win"] = (df["playerA_rank_points"] == df["winner_rank_points"]).astype(int)
 
     log_reg(df, "rel_dif_score", "playerA_win", plot=plot, exp_no=3)
