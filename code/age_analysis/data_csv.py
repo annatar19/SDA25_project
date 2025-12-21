@@ -21,7 +21,8 @@ def main():
     data_path = Path(INPUT_DIR)
     if not data_path.exists():
         print(
-            "The raw data does not exist, this script is probably being called from the wrong place."
+            "The raw data does not exist, this script is probably being called"
+            " from the wrong place."
         )
         return 1
 
@@ -76,7 +77,8 @@ def main():
     age_dropped = raw_len - age_len
     age_dropped_percent = age_dropped / raw_len * 100
     print(
-        f"\tCleaning age caused {age_dropped} entries to be dropped, which is {(age_dropped_percent):.1f}% of the total."
+        f"\tCleaning age caused {age_dropped} entries to be dropped, which is"
+        f" {(age_dropped_percent):.1f}% of the total."
     )
 
     df.to_csv(OUT_FN)

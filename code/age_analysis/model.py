@@ -1,6 +1,4 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import re
 import statsmodels.formula.api as smf
 from sklearn.metrics import accuracy_score, roc_auc_score, log_loss, brier_score_loss
@@ -88,7 +86,7 @@ def test(train_df, test_df, formulas):
             "brier_score_loss": brier_score_loss(y, p),
             "roc_auc_score": roc_auc_score(y, p),
         }
-        print(f"accuracy: {round(row["accuracy_score"]* 100, 2)}")
+        print(f"accuracy: {round(row["accuracy_score"] * 100, 2)}")
         print(f"logloss: {row["log_loss"]}")
         print(f"brier: {row["brier_score_loss"]}")
         print(f"auc: {row["roc_auc_score"]}")
@@ -114,7 +112,8 @@ def main():
     len_non_na = len(df)
     # Should be none
     print(
-        f"dropna dropped {len_raw- len_non_na} rows, which is {((len_raw- len_non_na)/len_raw*100):.1f}%."
+        f"dropna dropped {len_raw - len_non_na} rows, which is "
+        f"{((len_raw - len_non_na) / len_raw * 100):.1f}%."
     )
 
     age_min = float(df[["p1_age", "p2_age"]].min().min())

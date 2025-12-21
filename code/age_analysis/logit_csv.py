@@ -1,8 +1,5 @@
-import numpy as np
 import pandas as pd
-from scipy import stats
 from pathlib import Path
-import matplotlib.pyplot as plt
 
 CSV_DIR = "csv"
 
@@ -27,7 +24,7 @@ def main():
     df["match_id"] = df.index
 
     # Winner perspective
-    w = df.rename(
+    winners = df.rename(
         columns={
             "winner_id": "p1_id",
             "winner_age": "p1_age",
@@ -36,10 +33,10 @@ def main():
         }
     ).copy()
     # p1 Won.
-    w["win"] = 1
+    winners["win"] = 1
 
     # Loser perspective
-    l = df.rename(
+    losers = df.rename(
         columns={
             "loser_id": "p1_id",
             "loser_age": "p1_age",
@@ -48,7 +45,7 @@ def main():
         }
     ).copy()
     # p1 Lost.
-    l["win"] = 0
+    losers["win"] = 0
 
     # Will get an unnamed column otherwise, not sure why.
     keep = [
@@ -60,14 +57,14 @@ def main():
         "win",
     ]
 
-    logit = pd.concat([w[keep], l[keep]], ignore_index=True)
+    logit = pd.concat([winners[keep], losers[keep]], ignore_index=True)
     n = len(logit)
     logit.dropna(inplace=True)
     percent = n - len(logit)
     percent /= n
     percent *= 100
     print(
-        f"Dropped {n-len(logit)} entries containing NaN, which was {round(percent,1)}%."
+        f"Dropped {n-len(logit)} entries containing NaN, which was {round(percent, 1)}%."
     )
 
     logit.to_csv(f"{CSV_DIR}/logit.csv", index=True)

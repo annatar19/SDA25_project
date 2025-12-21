@@ -76,7 +76,7 @@ def main():
     x = out["year"]
     y = out["diff_mean"]
 
-    ax.plot(x, y, color="green", label=f"Difference in mean age.")
+    ax.plot(x, y, color="green", label="Difference in mean age.")
 
     ax.fill_between(
         x,
@@ -84,13 +84,13 @@ def main():
         out["ci_upper"],
         color="green",
         alpha=0.2,
-        label=f"95% CI",
+        label="95% CI",
     )
 
     ax.axhline(0, linewidth=1, color="black")
     ax.legend()
     ax.grid(True)
-    ax.set_title(f"Main tier: winner vs loser mean age difference per year (95% CI)")
+    ax.set_title("Main tier: winner vs loser mean age difference per year (95% CI)")
     ax.set_xlabel("Year")
     ax.set_ylabel("Difference mean age (Years)")
     fig.savefig(f"{PNG_DIR}/winner_loser_age_mean.png", bbox_inches="tight")
