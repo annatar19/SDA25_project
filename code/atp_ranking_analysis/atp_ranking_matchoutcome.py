@@ -1,5 +1,6 @@
 # correlational analysis of the ranking of two players during a match, and the match outcome
-# There are two variables influencing match outcome winner_rank_points and loser_rank_points (nominal)
+# There are two variables influencing match outcome winner_rank_points and
+# loser_rank_points (nominal)
 # one outcome variable: winning type, categorical
 
 import pandas as pd
@@ -7,7 +8,6 @@ import numpy as np
 import re
 import glob
 
-from sklearn.datasets import make_classification
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
@@ -15,14 +15,15 @@ from sklearn.metrics import confusion_matrix, accuracy_score, roc_auc_score
 import statsmodels.api as sm
 
 # list of the experiments you want to run. Valid experiment numbers are 1, 2 and 3
-EXPERIMENT_NO = [2]
+EXPERIMENT_NO = [1, 2, 3]
 PLOT_DATA = True
 
-USE_COLS = ["tourney_id", "tourney_name", "match_num", 
-             "winner_id", "winner_rank", "winner_rank_points", 
-             "loser_id", "loser_rank", "loser_rank_points"]
+USE_COLS = ["tourney_id", "tourney_name", "match_num",
+            "winner_id", "winner_rank", "winner_rank_points",
+            "loser_id", "loser_rank", "loser_rank_points"]
 
 RANDOM_SEED = 8
+
 
 def load_tennis_data(
     path_pattern="../data/tennis_atp_data/unaltered_data/*",
@@ -62,6 +63,7 @@ def load_tennis_data(
     # All the .csv into 1, the loaded columns that is.
     return pd.concat(csvs, ignore_index=True)
 
+
 def log_reg(df, x_col_name, y_col_name, exp_no=None, plot=True):
     # Optional scatter plot
     if plot:
@@ -93,12 +95,12 @@ def log_reg(df, x_col_name, y_col_name, exp_no=None, plot=True):
     if exp_no is None:
         exp_no = ""
 
-    print(f"______________________________________")
+    print("______________________________________")
     print(f"Results experiment {exp_no}")
-    print(f"______________________________________\n")
+    print("______________________________________\n")
 
     # sklearn results
-    print(f"Sklearn logistic regression:")
+    print("Sklearn logistic regression:")
     print(f"Beta-coef: {log_reg_model.coef_}")
     print(f"Intercept: {log_reg_model.intercept_}")
 
@@ -110,25 +112,30 @@ def log_reg(df, x_col_name, y_col_name, exp_no=None, plot=True):
     print(f"ROC-AUC: {roc_auc_score(test_y, pred_prob):.3f}\n")
 
     # NHST results
-    print(f"Statsmodels logistic regression (NHST for coefficient significance):")
+    print("Statsmodels logistic regression (NHST for coefficient significance):")
     print(summary_table)
+
 
 # EXPERIMENT 1
 def get_dif_data(df):
     df_filtered = df[["winner_rank_points", "loser_rank_points"]]
-    df_filtered["dif_score"] = (df_filtered["winner_rank_points"] - df_filtered["loser_rank_points"]).abs()
-    df_filtered["higher_rank_win"] = (df_filtered["winner_rank_points"] > df_filtered["loser_rank_points"]).astype(int) # hoe omgaan met hetzelfde aantal punter
+    df_filtered["dif_score"] = (df_filtered["winner_rank_points"] -
+                                df_filtered["loser_rank_points"]).abs()
+    df_filtered["higher_rank_win"] = (df_filtered["winner_rank_points"] >
+                                      df_filtered["loser_rank_points"]).astype(int)
     df_filtered = df_filtered.dropna()
-    
+
     return df_filtered
+
 
 def experiment1(tennis_df, plot=True):
     """
-    First experiment: logistic regression for the p(high_rank_score_wins | absolute_difference_score)
+    First experiment: logistic regression for p(high_rank_score_wins | absolute_difference_score)
     """
     df = get_dif_data(tennis_df)
-    
+
     log_reg(df, "dif_score", "higher_rank_win", plot=plot, exp_no=1)
+
 
 # EXPERIMENT 2
 def add_shuffled_columns(df, col1, col2, new1, new2, seed=None):
@@ -147,10 +154,11 @@ def add_shuffled_columns(df, col1, col2, new1, new2, seed=None):
 
     return df
 
+
 def plot_prob_vs_diff(df, x_col="dif_score", y_col="playerA_win", bins=20):
     """
     Plots the probability of winning vs difference score for experiment 2.
-    
+
     df - pandas DataFrame, must contain x_col and y_col
     x_col - str, the difference score column
     y_col - str, binary win column
@@ -170,21 +178,24 @@ def plot_prob_vs_diff(df, x_col="dif_score", y_col="playerA_win", bins=20):
     plt.grid(alpha=0.3)
     plt.show()
 
+
 def plot_prob_vs_diff_lowess(df, x_col="dif_score", y_col="playerA_win", frac=0.3):
     """
     Plot probability of winning vs difference score using LOWESS smoothing.
-    
+
     frac - fraction of data used for smoothing (between 0 and 1)
     """
     x = df[x_col].values
     y = df[y_col].values
-    
+
     lowess = sm.nonparametric.lowess
     smoothed = lowess(y, x, frac=frac)
-    
-    plt.figure(figsize=(7,5))
+
+    plt.figure(figsize=(7, 5))
     plt.scatter(x, y, alpha=0.2, s=10, color='gray', label='Raw data')
-    plt.plot(smoothed[:,0], smoothed[:,1], color='dodgerblue', linewidth=2, label='Smoothed probability')
+    plt.plot(smoothed[:, 0], smoothed[:, 1], color='dodgerblue',
+             linewidth=2, label='Smoothed probability')
+    plt.xlim((-5000, 5000))
     plt.xlabel(x_col)
     plt.ylabel(f"Probability of {y_col}")
     plt.title(f"{y_col} vs {x_col} (LOWESS smoothing)")
@@ -192,57 +203,54 @@ def plot_prob_vs_diff_lowess(df, x_col="dif_score", y_col="playerA_win", frac=0.
     plt.legend()
     plt.show()
 
+
 def experiment2(tennis_df, plot=True):
     """
     Second experiment.
-    In this one instead of looking at the probability of the player with the highest score winning, 
-    I randomly shuffled the winner and loser scores and see if there is a correlation between playerA winning and the difference score: playerA_rank_points - playerB_rank_points.
+    In this one instead of looking at the probability of the player with the highest score winning,
+    I randomly shuffled the winner and loser scores and see if there is a correlation between
+        playerA winning and the difference score: playerA_rank_points - playerB_rank_points.
     """
     df = tennis_df[["winner_rank_points", "loser_rank_points"]].dropna()
-    
-    df = add_shuffled_columns(df, "winner_rank_points", "loser_rank_points", 
+
+    df = add_shuffled_columns(df, "winner_rank_points", "loser_rank_points",
                               "playerA_rank_points", "playerB_rank_points", seed=RANDOM_SEED)
-    
+
     df["dif_score"] = df["playerA_rank_points"] - df["playerB_rank_points"]
     df["playerA_win"] = (df["playerA_rank_points"] == df["winner_rank_points"]).astype(int)
 
     log_reg(df, "dif_score", "playerA_win", plot=plot, exp_no=2)
 
     if plot:
-        # plot_prob_vs_diff(df, x_col="dif_score", y_col="playerA_win", bins=20)
         plot_prob_vs_diff_lowess(df, x_col="dif_score", y_col="playerA_win")
+
 
 # EXPERIMENT 3
 def experiment3(tennis_df, plot=True):
     """
-    Third experiment. Now instead of using absolute difference scores between playerA and playerB, the relative difference is used: (pA_score - pB_score) / pA_score.
-    Differences between very high ranking players now correlate with lower difference scores than differences between low ranking.
+    Third experiment. Now instead of using absolute difference scores between playerA and playerB,
+        the relative difference is used: (pA_score - pB_score) / pA_score.
+    Differences between very high ranking players now correlate with lower
+        difference scores than differences between low ranking.
     Differnces between high and low ranking result in very high difference scores.
-
-    Some big outliers presented themselves, they are taken out. Outliers selection was based on z-scores > 3
     """
     df = tennis_df[["winner_rank_points", "loser_rank_points"]].dropna()
-    
-    df = add_shuffled_columns(df, "winner_rank_points", "loser_rank_points", 
+
+    df = add_shuffled_columns(df, "winner_rank_points", "loser_rank_points",
                               "playerA_rank_points", "playerB_rank_points", seed=RANDOM_SEED)
-    
+
     # remove 0 ranking_point values
     df = df[df["playerA_rank_points"] != 0]
-    
+
     df["rel_dif_score"] = (df["playerA_rank_points"] - df["playerB_rank_points"]) / df["playerA_rank_points"]
     df["playerA_win"] = (df["playerA_rank_points"] == df["winner_rank_points"]).astype(int)
 
-    # remove outliers
-    # df = df[np.abs(stats.zscore(df["rel_dif_score"])) < 3]
-    
     log_reg(df, "rel_dif_score", "playerA_win", plot=plot, exp_no=3)
-
-    if plot:
-        plot_prob_vs_diff(df, x_col="rel_dif_score", y_col="playerA_win", bins=20)
 
 
 def main():
-    tennis_df = load_tennis_data(path_pattern="./data/tennis_atp_data/unaltered_data/*", usecols = USE_COLS).dropna()
+    tennis_df = load_tennis_data(path_pattern="./data/tennis_atp_data/unaltered_data/*",
+                                 usecols=USE_COLS).dropna()
 
     if len(EXPERIMENT_NO) == 0 or len(EXPERIMENT_NO) > 3:
         raise Exception("Invalid EXPERIMENT_NO length")
@@ -250,7 +258,7 @@ def main():
     for exp_no in EXPERIMENT_NO:
         if not isinstance(exp_no, int) or exp_no < 0 or exp_no > 3:
             raise Exception("Invalid experiment number. Check EXPERIMENT_NO global")
-        
+
         if exp_no == 1:
             experiment1(tennis_df, plot=PLOT_DATA)
         if exp_no == 2:
@@ -258,5 +266,6 @@ def main():
         if exp_no == 3:
             experiment3(tennis_df, plot=PLOT_DATA)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()
