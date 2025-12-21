@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import re
 import glob
+import os.path
 
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LogisticRegression
@@ -15,7 +16,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score, roc_auc_score
 import statsmodels.api as sm
 
 # list of the experiments you want to run. Valid experiment numbers are 1, 2 and 3
-EXPERIMENT_NO = [1, 2, 3]
+EXPERIMENT_NO = [2]
 PLOT_DATA = True
 
 USE_COLS = ["tourney_id", "tourney_name", "match_num",
@@ -155,30 +156,6 @@ def add_shuffled_columns(df, col1, col2, new1, new2, seed=None):
     return df
 
 
-def plot_prob_vs_diff(df, x_col="dif_score", y_col="playerA_win", bins=20):
-    """
-    Plots the probability of winning vs difference score for experiment 2.
-
-    df - pandas DataFrame, must contain x_col and y_col
-    x_col - str, the difference score column
-    y_col - str, binary win column
-    bins - int, number of bins to aggregate data
-    """
-    # Bin the x values
-    df = df.copy()
-    df['bin'] = pd.qcut(df[x_col], bins, duplicates='drop')  # quantile-based bins
-    grouped = df.groupby('bin')[y_col].mean().reset_index()
-    grouped['bin_center'] = grouped['bin'].apply(lambda b: b.mid)  # get midpoint for plotting
-
-    plt.figure(figsize=(7, 5))
-    plt.plot(grouped['bin_center'], grouped[y_col], marker='o', linestyle='-', color='dodgerblue')
-    plt.xlabel(f"Difference score ({x_col})")
-    plt.ylabel(f"Probability of {y_col}")
-    plt.title(f"Probability of winning vs {x_col}")
-    plt.grid(alpha=0.3)
-    plt.show()
-
-
 def plot_prob_vs_diff_lowess(df, x_col="dif_score", y_col="playerA_win", frac=0.3):
     """
     Plot probability of winning vs difference score using LOWESS smoothing.
@@ -201,7 +178,12 @@ def plot_prob_vs_diff_lowess(df, x_col="dif_score", y_col="playerA_win", frac=0.
     plt.title(f"{y_col} vs {x_col} (LOWESS smoothing)")
     plt.grid(alpha=0.3)
     plt.legend()
+    
+    if not os.path.isfile("./graphs/ranking/Pwin_absdif_smooth.png"):
+        plt.savefig("./graphs/ranking/Pwin_absdif_smooth.png")
+    
     plt.show()
+
 
 
 def experiment2(tennis_df, plot=True):
