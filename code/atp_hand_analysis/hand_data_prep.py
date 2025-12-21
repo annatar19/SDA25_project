@@ -87,7 +87,7 @@ def main():
     total_appearence = count_total_appearence_in_matches(clean_data)
     wins = count_wins(clean_data)
     summary = build_summary(df_wins=wins, df_total=total_appearence)
-    summary.to_csv("hand_winrate_summary.csv")
+    summary.to_csv("../../data/tennis_atp_data/altered_data/hand/hand_winrate_summary.csv")
 
 
 if __name__ == "__main__":

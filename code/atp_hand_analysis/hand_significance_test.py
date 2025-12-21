@@ -3,9 +3,11 @@ import numpy as np
 from statsmodels.stats.proportion import proportions_ztest
 import matplotlib.pyplot as plt
 
+DATA = "../../data/tennis_atp_data/altered_data/hand/hand_winrate_summary.csv"
+
 
 def load_winrate_summary():
-    return pd.read_csv("hand_winrate_summary.csv", index_col=0)
+    return pd.read_csv(DATA, index_col=0)
 
 
 def two_proportion_z_test(wins_R, total_R, wins_L, total_L):
@@ -98,7 +100,7 @@ def plot_winrate_barchart(summary, p_value=None, z_value=None):
 
 def plot_total_match_appearances_by_hand(summary):
     """
-    plt graph 1
+    plt graph
     """
 
     counts = (
@@ -149,6 +151,8 @@ def main():
 
     # Context plot
     plot_total_match_appearances_by_hand(winrate_summary)
+    plt.savefig("../../graphs/hand/total_match_appearances.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
     # Statistical test
     z, p = two_proportion_z_test(
@@ -160,8 +164,8 @@ def main():
 
     # Result plot
     plot_winrate_barchart(winrate_summary, p_value=p, z_value=z)
-
-    plt.show()
+    plt.savefig("../../graphs/hand/winrate_barchart.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
 
 if __name__ == "__main__":
