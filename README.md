@@ -88,9 +88,9 @@ Ensures consistent formatting across the all code.
 
 ## Contributors
 
-Efe Aras
-Stijn Jongbloed
-Liam Gatersleben
+Efe Aras,<br>
+Stijn Jongbloed,<br>
+Liam Gatersleben,<br>
 Sebas van Waard
 
 ---
