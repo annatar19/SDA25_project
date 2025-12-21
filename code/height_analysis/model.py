@@ -1,3 +1,10 @@
+"""
+Author: Stijn Jongbloed - 12902667
+
+This file contains the code to train and test different logistic regression
+models based on the height data of aour dataset.
+"""
+
 import pandas as pd
 import re
 import statsmodels.formula.api as smf
@@ -5,12 +12,13 @@ from sklearn.metrics import accuracy_score, roc_auc_score, log_loss, brier_score
 from pathlib import Path
 
 
-CSV_DIR = "csv"
+# Originally the in- and output was stored within a directory next to the code,
+# but it was decided to seperate data and code.
+CSV_DIR = "../../data/tennis_atp_data/altered_data/height_analysis"
 
 
 def init_out_dir():
-    p = Path(CSV_DIR)
-    p.mkdir(parents=True, exist_ok=True)
+    Path(CSV_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def get_formulas():

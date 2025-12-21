@@ -1,10 +1,20 @@
+"""
+Author: Stijn Jongbloed - 12902667
+
+This file contains the code to analyse the difference of the mean height of
+winners and mean height of losers of the main tier per year, as well as code
+to see if it is statistically significant.
+"""
+
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-CSV_DIR = "csv"
-PNG_DIR = "png"
+# Originally the in- and output was stored within a directory next to the code,
+# but it was decided to seperate data and code.
+CSV_DIR = "../../data/tennis_atp_data/altered_data/height_analysis"
+PNG_DIR = "../../graphs/height_analysis"
 
 
 def init_out_dir():
@@ -13,9 +23,14 @@ def init_out_dir():
 
 
 def main():
-    path = Path(f"{CSV_DIR}/data.csv")
+    print(
+        "Starting the height year main tier winner loser mean height difference analysis…"
+    )
+    path = Path(f"{CSV_DIR}/height_data.csv")
     if not path.is_file():
-        print("data.csv Is missing, please run data_csv.py before running this script.")
+        print(
+            "\theigh_data.csv Is missing, please run data_csv.py before running this script."
+        )
         return 1
     init_out_dir()
     df = pd.read_csv(path)
@@ -91,7 +106,12 @@ def main():
     ax.set_title("Main tier: winner vs loser mean height difference per year (95% CI)")
     ax.set_xlabel("Year")
     ax.set_ylabel("Difference mean height (cm)")
+    print(f"\tWriting the analysis result to {PNG_DIR}/winner_loser_ht_mean.png")
     fig.savefig(f"{PNG_DIR}/winner_loser_ht_mean.png", bbox_inches="tight")
+
+    print(
+        "Starting the height year main tier winner loser mean height difference analysis…\n"
+    )
     return 0
 
 

@@ -1,11 +1,22 @@
+"""
+Author: Stijn Jongbloed - 12902667
+
+This file contains the code to clean the height data from the raw atp data.
+
+It merges all the years and tiers into one csv, and extracts only the necessary
+columns. Furthermore it removes rows with missing or invalid data.
+"""
+
 import pandas as pd
 import re
 from pathlib import Path
 
 
 INPUT_DIR = "../../data/tennis_atp_data/unaltered_data/"
-OUTPUT_DIR = "csv"
-OUT_FN = f"{OUTPUT_DIR}/data.csv"
+# Originally the output was stored within a directory next to the code, but it
+# was decided to seperate data and code.
+OUTPUT_DIR = "../../data/tennis_atp_data/altered_data/height_analysis"
+OUT_FN = f"{OUTPUT_DIR}/height_data.csv"
 
 FP_PATTERN = re.compile(
     r"/(?P<dataset>\w*)_matches(?:_(?P<match_tier>[\w_]+))?_(?P<year>\d{4}).csv"
@@ -13,16 +24,16 @@ FP_PATTERN = re.compile(
 
 
 def init_out_dir():
-    p = Path(OUTPUT_DIR)
-    p.mkdir(parents=True, exist_ok=True)
+    Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def main():
+    print("Starting to clean the height data…")
     data_path = Path(INPUT_DIR)
     if not data_path.exists():
         print(
-            "The raw data does not exist, this script is probably being called"
-            " from the wrong place."
+            "\tThe raw data does not exist, this script is probably being "
+            "called from the wrong place."
         )
         return 1
 
@@ -37,7 +48,7 @@ def main():
     ]
 
     csvs = []
-    print("Reading and combining data…")
+    print("\tReading and combining data…")
     for fn in data_path.rglob("*.csv"):
         re_match = re.search(FP_PATTERN, str(fn))
         if re_match:
@@ -45,7 +56,7 @@ def main():
             if match_tier == "doubles":
                 continue
             match_year = int(re_match.group("year"))
-            print(f"\tProcessing {fn}…")
+            print(f"\t\tProcessing {fn}…")
             df = pd.read_csv(fn, usecols=cols)
 
             # Left out errors coerce so I'll know if a date is missing.
@@ -59,7 +70,7 @@ def main():
             df["tier"] = match_tier if match_tier else "main"
             csvs.append(df)
     df = pd.concat(csvs, ignore_index=True)
-    print("Cleaning data…")
+    print("\tCleaning data…")
     raw_len = len(df)
     # The shortest tennis player in the dataset is Jorge Brian Panta Herreros,
     # who is 3 cm tall according to the data. Looking at pictures he seems to
@@ -87,12 +98,13 @@ def main():
     ht_dropped = raw_len - ht_len
     ht_dropped_percent = ht_dropped / raw_len * 100
     print(
-        f"\tCleaning height caused {ht_dropped} entries to be dropped, which "
-        f"is {(ht_dropped_percent):.1f}% of the total."
+        f"\t\tCleaning the height data caused {ht_dropped} entries to be "
+        f"dropped, which is {(ht_dropped_percent):.1f}% of the total."
     )
 
     df.to_csv(OUT_FN)
     print(f"Wrote the data to {OUT_FN}!")
+    print("Done cleaning the height data!\n")
 
     return 0
 
