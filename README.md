@@ -36,6 +36,7 @@ SDA25_project
 │   ├── ranking
 │   ├── surface
 │   └── win_streak
+├── rulebook.pdf                   
 ├── README.md                      # YOU ARE HERE
 ├── requirements.txt               # Python dependencies
 └── SDA_2025_presentation.pdf      # Final presentation
