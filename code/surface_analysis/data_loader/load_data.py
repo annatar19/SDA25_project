@@ -1,4 +1,6 @@
-# used to load the ATP csvs into a single dataframe
+# This file is used to load the ATP tennis csv's in data/tennis_atp_data/unaltered_data
+# INPUT: ATP tennis csv's, can adjust the scope by changing regex_pattern
+# OUTPUT: DataFrame, for surface analysis the scope is mainly the years 1991-2024
 import pandas as pd
 import glob
 import re

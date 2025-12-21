@@ -1,17 +1,19 @@
-# THIS FILE USES load_data.py. (DATA IS FROM 1997-2024)
-# This file creates a dataset with the players surface winrates for each match they play, calculated individually
-# for each match. It does it for the following surfaces: clay, hard and grass. The dataset is then used in
-# surface_winrate_analysis.py to analyze the effect of surface winrate on accuracy.
+# This file cleans the raw data, for winrate analysis. Historic wins and losses are stored
+# for tennis players. Winrate is calculated individually for each match, based on all past
+# matches.
+# INPUT: raw csv's (using load_data.py)
+# OUTPUT: preprocessed csv with winrates added for each players per match
 import pandas as pd
 from load_data import load_tennis_data
 
-# class to keep track of matches wins/losses per surface for each tenisser, chronologically.
+
+# Class to keep up with match histories
 class Tenisser:
     def __init__(self, tenisser_id):
         self.id = tenisser_id
-        self.surface_matches = {"Grass": {"wins": 0, "losses": 0}, 
-            "Hard":  {"wins": 0, "losses": 0},
-            "Clay":  {"wins": 0, "losses": 0}}
+        self.surface_matches = {"Grass": {"wins": 0, "losses": 0},
+                                "Hard":  {"wins": 0, "losses": 0},
+                                "Clay":  {"wins": 0, "losses": 0}}
 
     def update_winrate(self, surface, won):
         if won:
@@ -19,35 +21,24 @@ class Tenisser:
         else:
             self.surface_matches[surface]["losses"] += 1
 
+    # Uses laplace smoothing to avoid extremes for newer players
     def get_winrate(self, surface):
-        # calculate historical winrate before the current match. 
-        # minimum matches of 15 needed, else the data would be too noisy.
-        total_matches = self.surface_matches[surface]["wins"] + self.surface_matches[surface]["losses"]
-
-        # MOET EEN FIX VOOR DIT
-        # if total_matches < 15:
-        #     return 0.5
-        
-        # laplace to avoid 0's
+        total_matches = self.surface_matches[surface]["wins"] + \
+                        self.surface_matches[surface]["losses"]
         return (self.surface_matches[surface]["wins"] + 1) / (total_matches + 2)
 
 
+# IMPORTANT, we load 1980-2024, but use 1991-2024 as train/test. 1980-1991
+# is used to initialize winrates for players. This way for the first part of the training data
+# we dont start with 0 matches for all players, avoiding extreme values. We will still get new
+# players throughout the years 1991 onwards, for those we rely on laplace.
 def main():
-    # data is from 1991 to 2024
-    data = load_tennis_data(path_pattern="../../../data/tennis_atp_data/unaltered_data/*",
-                            regex_pattern=r"/atp_matches_(198[0-9]|199[0-9]|20[0-1][0-9]|202[0-4])\.csv")
-    data = data[data['surface'].isin(['Hard','Clay','Grass'])]
-    # print(1, len(data))
-
-    # sorting as it wasnt in chronological order, which would ruin the winrate calculation
+    data = load_tennis_data(
+        path_pattern="../../../data/tennis_atp_data/unaltered_data/*",
+        regex_pattern=r"/atp_matches_(198[0-9]|199[0-9]|20[0-1][0-9]|202[0-4])\.csv")
+    data = data[data['surface'].isin(['Hard', 'Clay', 'Grass'])]
     data = data.sort_values('tourney_date').reset_index(drop=True)
 
-    # loop in which constantly recalculate the winrate for each individual match
-    # for each match i get the winrates of the tenissers. store it in the dataset,
-    # and then update the winrate with after this match
-    # since logistic regression needs 2 target classes, i decided to temporarily
-    # store each row from both the winners and losers perspective. i plan to research
-    # this later if there are better options if time allows.
     tenissers = {}
     new_rows = []
     for _, row in data.iterrows():
@@ -60,6 +51,7 @@ def main():
         winner_winrate = tenissers[row['winner_id']].get_winrate(row['surface'])
         loser_winrate = tenissers[row['loser_id']].get_winrate(row['surface'])
 
+        # See note above main()
         if row['tourney_date'] >= 19910101:
             new_row_win = {
                 'tourney_date': row['tourney_date'],
@@ -96,14 +88,15 @@ def main():
         tenissers[row['loser_id']].update_winrate(row['surface'], 0)
 
     data = pd.DataFrame(new_rows)
-    data = data.dropna(subset=['p1_rank', 'p2_rank', 'p1_surface_winrate', 'p2_surface_winrate'])
-    # print(2, len(data)//2)
-    data.to_csv("../../../data/tennis_atp_data/altered_data/surface_winrate_dataset.csv", index=False)
-    print(f"data size: {len(data)}")
+    data = data.dropna(
+        subset=['p1_rank', 'p2_rank', 'p1_surface_winrate', 'p2_surface_winrate'])
+    data.to_csv("../../../data/tennis_atp_data/altered_data/surface_analysis/"
+                "surface_winrate_1991_2024.csv", index=False)
 
-    # quick overview of how rows look like                                                                                                                                                                                                
+    # quick check if the rows look good, and data size seems realistic
+    print(f"data size: {len(data)}")
     print(data.iloc[200:206])
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()

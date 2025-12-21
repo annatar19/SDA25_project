@@ -1,13 +1,17 @@
 SDA25 project repository for group 3
+Scientific Data Analysis of Professional Tennis
 
 ## About the project
-
-This project analyzes professional tennis data to explore ...
+This project analyzes professional tennis data to explore how player attributes, rankings, surface, and recent performance influence match outcomes.
+Using historical ATP singles data, we investigate factors such as age, height, ranking, dominant hand, surface type, match length, and win streaks.
 
 The repository is organized into modular folders:
 
 - `code/`: Scripts for data processing, analysis, and modeling.
 - `data/`: Unaltered and altered tennis datasets, organized for clarity.
+- `graphs/`: Generated figures and plots
+
+---
 
 ## Project structure
 
@@ -23,20 +27,20 @@ SDA25_project
 │   ├── height_analysis
 │   └── surface_analysis
 ├── data
-│   ├── tennis_atp_data
-│   ├── tennis_wta_data
-│   └── tml_data
+│   ├── tennis_atp_data           # Male tennis
+│   └── tennis_wta_data           # Female tennis
 ├── graphs
 │   ├── dominant_hand_winrates.png
 │   ├── height_analysis
 │   ├── ranking
 │   ├── surface
 │   └── win_streak
-├── matches_with_win_streaks.csv
-├── README.md
-├── requirements.txt
-└── SDA_2025_presentation.pdf
+├── README.md                      # YOU ARE HERE
+├── requirements.txt               # Python dependencies
+└── SDA_2025_presentation.pdf      # Final presentation
 ```
+
+---
 
 ## Building
 This project only uses Python code. To install the required libraries, do:
@@ -52,10 +56,36 @@ pip freeze > requirements.txt
 ```
 But remember to do `source .venv/bin/activate` beforehand so the `requirements.txt` does not get overwritten with local packages.
 
-## Data used
-https://github.com/JeffSackmann/tennis_wta
+---
 
-https://github.com/JeffSackmann/tennis_atp (2010-2024)
+## Code Quality & Formatting
+All Python code in this repository was cleaned and checked using flake8 with a max line length at 100:
+```
+flake8 --max-line-length=100
+```
+Ensures consistent formatting across the all code.
 
-https://github.com/Tennismylife/TML-Database/blob/master/2008.csv (1991 - 2025)
+---
 
+## Data Sources
+
+- WTA Data:  
+  https://github.com/JeffSackmann/tennis_wta
+
+- ATP Data:  
+  https://github.com/JeffSackmann/tennis_atp
+
+---
+
+## Summary
+
+- A summary of the project methodology and findings is available in SDA_2025_presentation.pdf.
+
+---
+
+## Contributors
+
+Efe Aras
+Stijn Jongbloed
+Liam Gatersleben
+Sebas van Waard

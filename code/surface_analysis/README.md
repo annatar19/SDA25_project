@@ -8,7 +8,7 @@ The folder containts the following folders
 - `surface_acerates_analysis.py`: used to analyze acerates differences in surfaces to see whether it is worth investigating more
 - `surface_winrates_analysis.py`: used to test the significance of winrates per surface for each player
 
-## Usage of load_data.py and make_winrate_data.py in data_loader folder
+### Usage of load_data.py and make_winrate_data.py in data_loader folder
 
 #### load_data.py:
 
@@ -32,7 +32,7 @@ usecols, defines which columns to keep in output
 4. Matches recorded in both perspectives (loser and winner). So each match is represented twice, allowing for logistic regression as we now have 2 classes player1_won = 1 or 0
 5. Update winrates and continue
 
-## Usage of surface_acerates_analysis.py and surface_winrates_analysis.py in main folder
+### Usage of surface_acerates_analysis.py and surface_winrates_analysis.py in main folder
 
 #### surface_winrates_analysis.py:
 
@@ -41,18 +41,20 @@ usecols, defines which columns to keep in output
 
 `Core process`:
 1. Load `surface_winrate_dataset.csv` and ability to adjust `    return data[data['rank_diff'].abs() <= 50]` to check for either closes matches that is a rank difference of 50. or set it to infinite to test without filter. Allows for focusing more on effect of surface winrate
-2. Split data chronologically into training (first 80% of data) and test sets (last 20%) to preserve the time series. As training on future years to then accidentaly both test on past and future years makes no sense.
+2. Split data chronologically into training (first 80% of data) and test sets (last 20%) to preserve the time series.
 3. fit logistic regression per surface, since surfaces do differ it would be nice to see whether we see it back in the metrics.
 - Rank diff model only
 - Winrate diff model only
 - Rank and Winrate diff model
-3 model types to thoroughly test
 4. Evaluates each model on the test set using:
 Accuracy, ROC AUC and summaries of regression
 
 #### surface_acerates_analysis.py:
 
-- `input`: 
-- `output`:
+- `input`: a single DataFrame containing all csv files from a range of years defined by the parameter regex_pattern (using load_data.py)
+- `output`: plot of acerates (aggregrated on player level) and anova test results in terminal (pvalue)
 
 `Core process`:
+1. Preprocess data, dropping NaN rows, dropping carpet surface, dropping invalid values
+2. Calculate ace rates aggregrated on player level thus making sure each row is independent rather than calculating ace rate per match
+3. Plot acerates graph and Run ANOVA (https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html)
