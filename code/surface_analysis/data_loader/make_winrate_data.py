@@ -8,7 +8,7 @@ from load_data import load_tennis_data
 
 
 # Class to keep up with match histories
-class Tenisser:
+class Player:
     def __init__(self, tenisser_id):
         self.id = tenisser_id
         self.surface_matches = {"Grass": {"wins": 0, "losses": 0},
@@ -43,10 +43,10 @@ def main():
     new_rows = []
     for _, row in data.iterrows():
         if row['winner_id'] not in tenissers:
-            tenissers[row['winner_id']] = Tenisser(row['winner_id'])
+            tenissers[row['winner_id']] = Player(row['winner_id'])
 
         if row['loser_id'] not in tenissers:
-            tenissers[row['loser_id']] = Tenisser(row['loser_id'])
+            tenissers[row['loser_id']] = Player(row['loser_id'])
 
         winner_winrate = tenissers[row['winner_id']].get_winrate(row['surface'])
         loser_winrate = tenissers[row['loser_id']].get_winrate(row['surface'])

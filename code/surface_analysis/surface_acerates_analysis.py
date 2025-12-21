@@ -34,10 +34,10 @@ def acerates_per_surfacec(data):
     winner_df.columns = ['player_id', 'surface', 'aces', 'svpt']
     loser_df = data[['loser_id', 'surface', 'l_ace', 'l_svpt']].copy()
     loser_df.columns = ['player_id', 'surface', 'aces', 'svpt']
-    df_concateed = pd.concat([winner_df, loser_df], ignore_index=True)
+    df_concated = pd.concat([winner_df, loser_df], ignore_index=True)
 
     player_surface = (
-        df_concateed
+        df_concated
         .groupby(['player_id', 'surface'])
         .agg(total_aces=('aces', 'sum'), total_svpt=('svpt', 'sum'))
         .reset_index()

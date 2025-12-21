@@ -26,7 +26,7 @@ def split_train_test(data):
 def fitlogit(formule, train_data, test_data, model_name):
     model = smf.logit(formule, train_data).fit(disp=0)
     print(f"\n{model_name}")
-    print(model.summary())
+    # print(model.summary())
 
     y_test = test_data['player1_won']
     y_pred_prob = model.predict(test_data)
@@ -55,7 +55,7 @@ def main():
                  f"Surface winrate difference only (surface={s})")
 
         formula = "player1_won ~ I(p2_rank - p1_rank) + I(p1_surface_winrate - p2_surface_winrate)"
-        fitlogit(formula, train_data, test_data, f"Rank en winrate differences (surface={s})")
+        fitlogit(formula, train_data, test_data, f"Rank and winrate differences (surface={s})")
 
 
 if __name__ == "__main__":
