@@ -77,7 +77,8 @@ def main():
     # 2025-rulebook-chapter-7_the-competition_23dec.pdf.
     # Therefore there is no minimum age.
     # The oldest player in the dataset is Barros Filho at 63.4 years old, which
-    # does appear to be valid. https://www.itftennis.com/en/players/helcio-barros-filho/800182315/bra/mt/s/activity/#pprofile-info-tabs
+    # does appear to be valid:
+    # https://www.itftennis.com/en/players/helcio-barros-filho/800182315/bra/mt/s/activity/#pprofile-info-tabs
     # Therefore there is no maximum age.
     df["winner_age"] = pd.to_numeric(df["winner_age"], errors="coerce")
     df["loser_age"] = pd.to_numeric(df["loser_age"], errors="coerce")
