@@ -70,7 +70,6 @@ Ensures consistent formatting across the all code.
 
 ---
 
-<<<<<<< HEAD
 ## Data Sources
 
 - WTA Data:  
@@ -93,7 +92,8 @@ Efe Aras
 Stijn Jongbloed
 Liam Gatersleben
 Sebas van Waard
-=======
+
+---
 ## Clarifying answers to questions from the presentation
 
 **Q1: Why don't the win rates in the archetype graphs add up to 100% ?**  
@@ -103,5 +103,3 @@ Percentages only sum up to 100% when they describe all possible outcomes of the 
 Example: A sprinter win rate of 40% means sprinters win 40% of their matches. A balanced win rate
 of 38% means balanced players win 38% of their matches. These refer to different groups of matches,
 so adding them together is pointless.
-
->>>>>>> 9a0f6b68756cfe6cf78a2771d4c26159e6c7a8c8
