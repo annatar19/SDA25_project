@@ -62,8 +62,8 @@ https://github.com/Tennismylife/TML-Database/blob/master/2008.csv (1991 - 2025)
 
 ## Clarifying answers to questions from the presentation
 
-Q1: Why don't the win rates in the archetype graphs add up to 1 (100%)?
-A1: The win rates don't add up to 100% because they're independent win probabilities, not part
+**Q1: Why don't the win rates in the archetype graphs add up to 100% ?**  
+**A1:** The win rates don't add up to 100% because they're independent win probabilities, not part
 of a single total. Each value answers: "What is the chance this archetype wins a match?"
 Percentages only sum up to 100% when they describe all possible outcomes of the same event.
 Example: A sprinter win rate of 40% means sprinters win 40% of their matches. A balanced win rate
