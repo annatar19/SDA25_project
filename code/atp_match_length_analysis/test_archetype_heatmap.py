@@ -2,7 +2,10 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("archetype_matchups.csv")
+DATA_PATH = "../../data/tennis_atp_data/altered_data/archetype/"
+PLOT_PATH = "../../graphs/archetype/"
+
+df = pd.read_csv(DATA_PATH + "archetype_matchups.csv")
 
 archetypes = ["Sprinter", "Balanced", "Endurance"]
 matrix = pd.DataFrame(index=archetypes, columns=archetypes, dtype=float)
@@ -22,5 +25,6 @@ for a1 in archetypes:
 plt.figure(figsize=(7, 6))
 sns.heatmap(matrix.astype(float), annot=True, cmap="RdYlGn", vmin=0.3, vmax=0.5)
 plt.title("Archetype Matchup Win Rates", fontsize=16, weight='bold')
-plt.savefig("7_archetype_matchup_heatmap.png", dpi=300)
-plt.show()
+
+print(f"Saving: {PLOT_PATH}archetype_matchups_heatmap.png")
+plt.savefig(PLOT_PATH + "archetype_matchups_heatmap.png", dpi=300)

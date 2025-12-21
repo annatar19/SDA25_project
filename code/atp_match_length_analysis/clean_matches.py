@@ -3,6 +3,8 @@ import glob
 import re
 import os
 
+DATA_PATH = "../../data/tennis_atp_data/altered_data/archetype/"
+
 
 def load_clean_matches(path_pattern="../../data/tennis_atp_data/unaltered_data/*",
                        regex=r"atp_matches_(199[1-9]|20[0-1][0-9]|202[0-4])\.csv$"):
@@ -94,7 +96,7 @@ if __name__ == "__main__":
     print("Expanding into player-level rows...")
     df_expanded = explode_win_loss(df_clean)
 
-    print("Saving clean_matches.csv...")
-    df_expanded.to_csv("clean_matches.csv", index=False)
+    print(f"Saving {DATA_PATH}clean_matches.csv")
+    df_expanded.to_csv(DATA_PATH + "clean_matches.csv", index=False)
 
     print("Done.")

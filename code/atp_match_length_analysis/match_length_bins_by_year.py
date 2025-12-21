@@ -3,6 +3,8 @@ import glob
 import re
 import os
 
+DATA_PATH = "../../data/tennis_atp_data/altered_data/archetype/"
+
 
 def compute_match_length_bins(
     path_pattern="../../data/tennis_atp_data/unaltered_data/*",
@@ -81,4 +83,4 @@ if __name__ == "__main__":
     print("\n=== Match Duration Bins by Year ===")
     print(summary)
 
-    summary.to_csv("match_length_bins_by_year.csv", index=False)
+    summary.to_csv(DATA_PATH + "match_length_bins_by_year.csv", index=False)

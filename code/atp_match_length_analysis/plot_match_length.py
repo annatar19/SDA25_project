@@ -3,10 +3,12 @@ import matplotlib.pyplot as plt
 
 
 CSV_PATH = "match_length_bins_by_year.csv"
+DATA_PATH = "../../data/tennis_atp_data/altered_data/archetype/"
+PLOT_PATH = "../../graphs/archetype/"
 
 
 def load_summary():
-    df = pd.read_csv(CSV_PATH)
+    df = pd.read_csv(DATA_PATH + CSV_PATH)
     df = df.sort_values("year")
     return df
 
@@ -28,9 +30,10 @@ def plot_match_length_thresholds(df):
     plt.title("Match Length Thresholds by Year", fontsize=16, weight="bold")
     plt.legend()
     plt.grid(axis="y", linestyle="--", alpha=0.4)
-
     plt.tight_layout()
-    plt.show()
+
+    print(f"Saving: {PLOT_PATH}match_length_thresholds.png")
+    plt.savefig(PLOT_PATH + "match_length_thresholds.png", dpi=300)
 
 
 def main():

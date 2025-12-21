@@ -1,5 +1,7 @@
 import pandas as pd
 
+DATA_PATH = "../../data/tennis_atp_data/altered_data/archetype/"
+
 N_LAST_MATCHES = 100
 MIN_MATCHES = 50
 MIN_BIN_MATCHES = 10
@@ -37,8 +39,8 @@ def assign_archetype(row):
     wr_s = row.get("winrate_short", 0.0)
     wr_m = row.get("winrate_medium", 0.0)
     wr_l = row.get("winrate_long", 0.0)
-    m_s  = int(row.get("matches_short", 0))
-    m_l  = int(row.get("matches_long", 0))
+    m_s = int(row.get("matches_short", 0))
+    m_l = int(row.get("matches_long", 0))
 
     if wr_s >= wr_m and wr_s >= wr_l and m_s >= MIN_BIN_MATCHES:
         return "Sprinter"
@@ -48,13 +50,14 @@ def assign_archetype(row):
 
 
 if __name__ == "__main__":
-    print("Loading matches_with_bins.csv...")
-    df = pd.read_csv("matches_with_bins.csv")
+    print(f"Loading: {DATA_PATH}matches_with_bins.csv")
+    df = pd.read_csv(DATA_PATH + "matches_with_bins.csv")
     df.columns = df.columns.str.strip()
 
     # recency + coverage filters
     df = filter_recent_matches(df)
-    df.to_csv("matches_recent.csv", index=False)
+    print(f"Saving: {DATA_PATH}matches_recent.csv")
+    df.to_csv(DATA_PATH + "matches_recent.csv", index=False)
 
     df = filter_player_counts(df)
 
@@ -64,5 +67,6 @@ if __name__ == "__main__":
     print("Assigning archetypes…")
     stats["archetype"] = stats.apply(assign_archetype, axis=1)
 
-    stats.to_csv("player_archetypes.csv", index=False)
+    print(f"Saving: {DATA_PATH}player_archetypes.csv")
+    stats.to_csv(DATA_PATH + "player_archetypes.csv", index=False)
     print("Done.")

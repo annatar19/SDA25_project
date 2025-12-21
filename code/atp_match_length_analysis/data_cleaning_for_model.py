@@ -1,15 +1,14 @@
 import pandas as pd
 
-# --- file paths (edit if needed) ---
+DATA_PATH = "../../data/tennis_atp_data/altered_data/archetype/"
 MATCHES_CSV = "matches_recent.csv"
 ARCHETYPES_CSV = "archetype_matchups.csv"
 OUT_CSV = "matches_with_archetypes.csv"
 
-# --- load ---
-matches = pd.read_csv(MATCHES_CSV)
-arch = pd.read_csv(ARCHETYPES_CSV)
+matches = pd.read_csv(DATA_PATH + MATCHES_CSV)
+arch = pd.read_csv(DATA_PATH + ARCHETYPES_CSV)
 
-# --- build a unified (player_id -> archetype) map ---
+# build a unified (player_id -> archetype) map
 cols = []
 if {"player_id", "player_archetype"}.issubset(arch.columns):
     a1 = arch[["player_id", "player_archetype"]].rename(
@@ -35,7 +34,7 @@ archetype_map = pd.concat(cols, ignore_index=True)
 # Drop exact duplicate rows
 archetype_map = archetype_map.drop_duplicates()
 
-# --- (optional) sanity check: conflicting archetypes for same player id ---
+# sanity check: conflicting archetypes for same player id
 conflicts = (
     archetype_map.groupby("id")["archetype"]
     .nunique()
@@ -46,10 +45,10 @@ if bad:
     print(f"Warning: {len(bad)} players have conflicting archetypes. "
           f"Keeping the first encountered value. Example IDs: {bad[:10]}")
 
-# Keep the first archetype per id (after drop_duplicates this is stable)
+# Keep the first archetype per id
 archetype_map = archetype_map.drop_duplicates(subset=["id"], keep="first")
 
-# --- merge into match-level data ---
+# merge into match-level data
 # player side
 merged = matches.merge(
     archetype_map.rename(columns={"id": "player_id", "archetype": "player_archetype"}),
@@ -64,9 +63,9 @@ merged = merged.merge(
     how="left",
 )
 
-# --- save ---
-merged.to_csv(OUT_CSV, index=False)
-print(f"Saved: {OUT_CSV}")
+# Saving
+merged.to_csv(DATA_PATH + OUT_CSV, index=False)
+print(f"Saving: {DATA_PATH}{OUT_CSV}")
 print(
     merged[["match_id", "player_id", "player_archetype", "opponent_id", "opponent_archetype"]]
     .head(10)

@@ -3,6 +3,9 @@ import numpy as np
 from scipy.stats import chi2_contingency
 import matplotlib.pyplot as plt
 
+DATA_PATH = "../../data/tennis_atp_data/altered_data/archetype/"
+PLOT_PATH = "../../graphs/archetype/"
+
 
 def test_sig(df):
     contingency = pd.crosstab(df['player_archetype'], df['won'])
@@ -11,7 +14,6 @@ def test_sig(df):
 
 
 def plot_win_rate_by_group(df, p_value):
-
     win_rates = df.groupby('player_archetype')['won'].mean().sort_values()
 
     plt.figure(figsize=(8, 6))
@@ -56,10 +58,11 @@ def plot_win_rate_by_group(df, p_value):
 
 
 if __name__ == "__main__":
-    df = pd.read_csv("archetype_matchups.csv")[['player_id','player_archetype','won']]
+    data_file_path = DATA_PATH + "archetype_matchups.csv"
+    df = pd.read_csv(data_file_path)[['player_id', 'player_archetype', 'won']]
 
     p_value = test_sig(df)
     b_plot = plot_win_rate_by_group(df, p_value)
 
-    b_plot.savefig("6_archetype_winrate.png", dpi=300)
-    b_plot.show()
+    print(f"Saving: {PLOT_PATH}archetype_winrates.png")
+    b_plot.savefig(PLOT_PATH + "archetype_winrate.png", dpi=300)
