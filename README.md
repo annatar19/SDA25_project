@@ -12,13 +12,30 @@ The repository is organized into modular folders:
 ## Project structure
 
 ```plaintext
-
-├── code/                   # Processing and analysis scripts
-├── data/                   # Contains ATP (men's tennis) and WTA (women's tennis) data
-├── graphs/                 # Contains analysis graphs
-├── .gitignore              # Files git should ignore
-├── README.md               # Project overview (you're here now)
-└── requirements.txt        # Python dependencies
+SDA25_project
+├── code
+│   ├── age_analysis
+│   ├── atp_hand_analysis
+│   ├── atp_match_length_analysis
+│   ├── atp_model
+│   ├── atp_ranking_analysis
+│   ├── atp_win_streak_analysis
+│   ├── height_analysis
+│   └── surface_analysis
+├── data
+│   ├── tennis_atp_data
+│   ├── tennis_wta_data
+│   └── tml_data
+├── graphs
+│   ├── dominant_hand_winrates.png
+│   ├── height_analysis
+│   ├── ranking
+│   ├── surface
+│   └── win_streak
+├── matches_with_win_streaks.csv
+├── README.md
+├── requirements.txt
+└── SDA_2025_presentation.pdf
 ```
 
 ## Building
