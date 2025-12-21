@@ -187,7 +187,9 @@ def main():
     print("Starting the training and testing of the various models…")
     init_out_dir()
     # df = pd.read_csv("atp_player_pairs_1991_2024.csv")
-    df = pd.read_csv("../../data/tennis_atp_data/altered_data/filtered_data.csv")
+    df = pd.read_csv(
+        "../../data/tennis_atp_data/altered_data/atp_model/filtered_data.csv"
+    )
     len_raw = len(df)
     print(f"\tLength raw input: {len_raw}")
     # Won't touch categories.

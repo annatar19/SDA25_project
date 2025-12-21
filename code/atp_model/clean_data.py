@@ -3,7 +3,7 @@ import pandas as pd
 
 def main():
     df = pd.read_csv(
-        "../../data/tennis_atp_data/altered_data/atp_player_pairs_1991_2024.csv"
+        "../../data/tennis_atp_data/altered_data/atp_model/atp_player_pairs_1991_2024.csv"
     )
     initial_len = len(df)
     print(f"Initial entry count: {initial_len}")
@@ -25,7 +25,7 @@ def main():
     df["rel_ranking_points"] = df["rel_ranking_points"].fillna(0)
     df["p1_favor"] = df["p1_favor"].fillna("even")
 
-    df.to_csv("../../data/tennis_atp_data/altered_data/filtered_data.csv")
+    df.to_csv("../../data/tennis_atp_data/altered_data/atp_model/filtered_data.csv")
 
     return 0
 

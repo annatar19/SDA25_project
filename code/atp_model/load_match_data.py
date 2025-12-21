@@ -407,9 +407,7 @@ if __name__ == "__main__":
     ARCHETYPES_CSV = (
         "../../data/tennis_atp_data/altered_data/archetype/matches_with_archetypes.csv"
     )
-    OUTPUT_CSV = (
-        "../../data/tennis_atp_data/altered_data/atp_player_pairs_1991_2024.csv"
-    )
+    OUTPUT_CSV = "../../data/tennis_atp_data/altered_data/atp_model/atp_player_pairs_1991_2024.csv"
 
     # Build base dataset
     matches = load_clean_matches(RAW_MATCHES_GLOB)
