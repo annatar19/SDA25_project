@@ -1,3 +1,10 @@
+"""
+Author: Stijn Jongbloed - 12902667
+
+This file contains the code to train and test different logistic regression
+models based on the age data of our dataset.
+"""
+
 import pandas as pd
 import re
 import statsmodels.formula.api as smf
@@ -5,12 +12,13 @@ from sklearn.metrics import accuracy_score, roc_auc_score, log_loss, brier_score
 from pathlib import Path
 
 
-CSV_DIR = "csv"
+# Originally the in- and output was stored within a directory next to the code,
+# but it was decided to seperate data and code.
+CSV_DIR = "../../data/tennis_atp_data/altered_data/age_analysis"
 
 
 def init_out_dir():
-    p = Path(CSV_DIR)
-    p.mkdir(parents=True, exist_ok=True)
+    Path(CSV_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def get_formulas(age_min, age_max):
@@ -69,12 +77,12 @@ def get_formulas(age_min, age_max):
 def test(train_df, test_df, formulas):
     rows = []
     for formula in formulas:
-        print(f"Formula: {formula}")
+        print(f"\tFormula: {formula}")
         model = smf.logit(formula, data=train_df).fit()
 
         # How probable is our test data according to the model?
         p = model.predict(test_df)
-        print(model.summary())
+        # print(model.summary())
 
         y = test_df["win"].astype(int).values
         y_hat = (p >= 0.5).astype(int)
@@ -86,33 +94,34 @@ def test(train_df, test_df, formulas):
             "brier_score_loss": brier_score_loss(y, p),
             "roc_auc_score": roc_auc_score(y, p),
         }
-        print(f"accuracy: {round(row["accuracy_score"] * 100, 2)}")
-        print(f"logloss: {row["log_loss"]}")
-        print(f"brier: {row["brier_score_loss"]}")
-        print(f"auc: {row["roc_auc_score"]}")
+        print(f"\t\taccuracy: {round(row["accuracy_score"] * 100, 2)}")
+        print(f"\t\tlogloss: {row["log_loss"]}")
+        print(f"\t\tbrier: {row["brier_score_loss"]}")
+        print(f"\t\tauc: {row["roc_auc_score"]}")
 
         rows.append(row)
     return rows
 
 
 def main():
+    print("Starting the training of the models using the various formulas…")
     path = Path(f"{CSV_DIR}/logit.csv")
     if not path.is_file():
         print(
-            "logit.csv Is missing, please run logit_csv.py before running this script."
+            "\tlogit.csv Is missing, please run logit_csv.py before running this script."
         )
         return 1
     init_out_dir()
     df = pd.read_csv(path)
 
     len_raw = len(df)
-    print(f"Length raw input: {len_raw}")
+    print(f"\tLength raw input: {len_raw}")
     # Won't touch categories.
     df.dropna(inplace=True)
     len_non_na = len(df)
     # Should be none
     print(
-        f"dropna dropped {len_raw - len_non_na} rows, which is "
+        f"\tdropna dropped {len_raw - len_non_na} rows, which is "
         f"{((len_raw - len_non_na) / len_raw * 100):.1f}%."
     )
 
@@ -152,7 +161,9 @@ def main():
         ["formula", "accuracy_score", "log_loss", "brier_score_loss", "roc_auc_score"]
     ]
 
+    print(f"\tWriting the result to {CSV_DIR}/model_results.csv")
     results_df.to_csv(f"{CSV_DIR}/model_results.csv", index=False)
+    print("Done with the training of the models using the various formulas…\n")
 
     return 0
 

@@ -75,7 +75,7 @@ def main():
     percent /= n
     percent *= 100
     print(
-        f"Dropped {n-len(logit)} entries containing NaN, which was {round(percent, 1)}%."
+        f"\tDropped {n-len(logit)} entries containing NaN, which was {round(percent, 1)}%."
     )
 
     print(f"\tWritning the logit csv to {CSV_DIR}/logit.csv…")

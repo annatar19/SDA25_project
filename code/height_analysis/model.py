@@ -2,7 +2,7 @@
 Author: Stijn Jongbloed - 12902667
 
 This file contains the code to train and test different logistic regression
-models based on the height data of aour dataset.
+models based on the height data of our dataset.
 """
 
 import pandas as pd
@@ -101,14 +101,14 @@ def main():
     path = Path(f"{CSV_DIR}/logit.csv")
     if not path.is_file():
         print(
-            "logit.csv Is missing, please run logit_csv.py before running this script."
+            "\tlogit.csv Is missing, please run logit_csv.py before running this script."
         )
         return 1
     init_out_dir()
     df = pd.read_csv(path)
 
     len_raw = len(df)
-    print(f"Length raw input: {len_raw}")
+    print(f"\tLength raw input: {len_raw}")
     # Won't touch categories.
     df.dropna(inplace=True)
     len_non_na = len(df)

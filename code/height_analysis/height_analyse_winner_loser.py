@@ -83,6 +83,7 @@ def main():
 
     out = pd.DataFrame(rows).sort_values("year").reset_index(drop=True)
 
+    print(f"\tWriting the analysis result to {PNG_DIR}/winner_loser_ht_mean.png")
     out.to_csv(f"{CSV_DIR}/winner_loser_ht_mean.csv", index=False)
     fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -106,11 +107,12 @@ def main():
     ax.set_title("Main tier: winner vs loser mean height difference per year (95% CI)")
     ax.set_xlabel("Year")
     ax.set_ylabel("Difference mean height (cm)")
+
     print(f"\tWriting the analysis result to {PNG_DIR}/winner_loser_ht_mean.png")
     fig.savefig(f"{PNG_DIR}/winner_loser_ht_mean.png", bbox_inches="tight")
 
     print(
-        "Starting the height year main tier winner loser mean height difference analysis…\n"
+        "Done with the height year main tier winner loser mean height difference analysis!\n"
     )
     return 0
 

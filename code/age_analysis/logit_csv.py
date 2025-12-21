@@ -1,15 +1,24 @@
+"""
+Author: Stijn Jongbloed - 12902667
+
+This file contains the code to generate the csv used for logistic regression on
+the age data.
+"""
+
 import pandas as pd
 from pathlib import Path
 
-CSV_DIR = "csv"
+# Originally the in- and output was stored within a directory next to the code,
+# but it was decided to seperate data and code.
+CSV_DIR = "../../data/tennis_atp_data/altered_data/age_analysis"
 
 
 def init_out_dir():
-    p = Path(CSV_DIR)
-    p.mkdir(parents=True, exist_ok=True)
+    Path(CSV_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def main():
+    print("Building the logit csv…")
     path = Path(f"{CSV_DIR}/data.csv")
     if not path.is_file():
         print("data.csv Is missing, please run data_csv.py before running this script.")
@@ -64,10 +73,12 @@ def main():
     percent /= n
     percent *= 100
     print(
-        f"Dropped {n-len(logit)} entries containing NaN, which was {round(percent, 1)}%."
+        f"\tDropped {n-len(logit)} entries containing NaN, which was {round(percent, 1)}%."
     )
 
+    print(f"\tWritning the logit csv to {CSV_DIR}/logit.csv…")
     logit.to_csv(f"{CSV_DIR}/logit.csv", index=True)
+    print("Done building the logit csv!\n")
     return 0
 
 

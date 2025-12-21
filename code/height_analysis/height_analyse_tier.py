@@ -68,6 +68,7 @@ def main():
     # Those columns were for computing, they are not useful for our conclusion.
     out = out.drop(columns=["std", "se", "tcrit"]).sort_values(["tier", "year"])
 
+    print(f"\tWriting the analysis result to {CSV_DIR}/height_tier_stats.csv")
     out.to_csv(f"{CSV_DIR}/height_tier_stats.csv")
 
     fig, ax = plt.subplots(figsize=(12, 8))

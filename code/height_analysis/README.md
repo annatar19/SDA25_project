@@ -28,6 +28,7 @@ Only the main tier is used, but it is again seperated by year. Instead of indivi
 
 The downside of this however was that heights were no longer independent, since the height of player1 in his second match is ofcourse not independent from his height in the first match. Because of this bootstrapping was used instead of the Student's t-distribution to compute the 95% CI of the mean height difference.
 
+The results show a clear and statistically significant height difference between winners and losers for recent years, with winners being taller on average.
 ## Logistic regression
 `logit_csv.py` Converts the height data to a form useful for training the logistic regression models. The height data is per match with winner columns and loser columns. For the logistic regression these rows are duplicated, the players switched between rows, and a column for the match result from the perspective of the first player is added. A row with a match in which Alice beated Bob results in an Alice-Bob-outcome=1 row as well as a Bob-Alice-outcome=0 row for instance. This is done so the model is also trained to predict losses instead of only wins. The result is stored in `logit.csv`.
 
