@@ -25,13 +25,13 @@ def main():
 
     # We are looking for the total mean per tier, so winners and losers should
     # be combined.
-    w = df[["year", "tier", "winner_id", "winner_ht"]].rename(
+    winners = df[["year", "tier", "winner_id", "winner_ht"]].rename(
         columns={"winner_id": "id", "winner_ht": "ht"}
     )
-    l = df[["year", "tier", "loser_id", "loser_ht"]].rename(
+    losers = df[["year", "tier", "loser_id", "loser_ht"]].rename(
         columns={"loser_id": "id", "loser_ht": "ht"}
     )
-    heights = pd.concat([w, l], ignore_index=True)
+    heights = pd.concat([winners, losers], ignore_index=True)
 
     # Not dropping duplicates would cause winners to be overcounted, creating
     # a bias. We only care what heights exist per tier, not how they performed.

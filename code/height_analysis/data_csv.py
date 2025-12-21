@@ -21,7 +21,8 @@ def main():
     data_path = Path(INPUT_DIR)
     if not data_path.exists():
         print(
-            "The raw data does not exist, this script is probably being called from the wrong place."
+            "The raw data does not exist, this script is probably being called"
+            " from the wrong place."
         )
         return 1
 
@@ -74,7 +75,7 @@ def main():
     # Reilly Opelka(https://www.atptour.com/en/players/reilly-opelka/o522/overview)
     # is the tallest player in our dataset at 211 cm, and his length appears to
     # be valid. No need for filtering, this is just for the formality.
-    height_maximum = 211
+    # height_maximum = 211
 
     df["winner_ht"] = pd.to_numeric(df["winner_ht"], errors="coerce")
     df["loser_ht"] = pd.to_numeric(df["loser_ht"], errors="coerce")
@@ -86,7 +87,8 @@ def main():
     ht_dropped = raw_len - ht_len
     ht_dropped_percent = ht_dropped / raw_len * 100
     print(
-        f"\tCleaning height caused {ht_dropped} entries to be dropped, which is {(ht_dropped_percent):.1f}% of the total."
+        f"\tCleaning height caused {ht_dropped} entries to be dropped, which "
+        f"is {(ht_dropped_percent):.1f}% of the total."
     )
 
     df.to_csv(OUT_FN)
