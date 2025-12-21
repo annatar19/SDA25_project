@@ -15,8 +15,8 @@ The repository is organized into modular folders:
 SDA25_project
 ├── code
 │   ├── age_analysis
+│   ├── atp_archetype_analysis
 │   ├── atp_hand_analysis
-│   ├── atp_match_length_analysis
 │   ├── atp_model
 │   ├── atp_ranking_analysis
 │   ├── atp_win_streak_analysis
@@ -27,7 +27,8 @@ SDA25_project
 │   ├── tennis_wta_data
 │   └── tml_data
 ├── graphs
-│   ├── dominant_hand_winrates.png
+│   ├── archetype
+│   ├── hand
 │   ├── height_analysis
 │   ├── ranking
 │   ├── surface
@@ -58,4 +59,14 @@ https://github.com/JeffSackmann/tennis_wta
 https://github.com/JeffSackmann/tennis_atp (2010-2024)
 
 https://github.com/Tennismylife/TML-Database/blob/master/2008.csv (1991 - 2025)
+
+## Clarifying answers to questions from the presentation
+
+Q1: Why don't the win rates in the archetype graphs add up to 1 (100%)?
+A1: The win rates don't add up to 100% because they're independent win probabilities, not part
+of a single total. Each value answers: "What is the chance this archetype wins a match?"
+Percentages only sum up to 100% when they describe all possible outcomes of the same event.
+Example: A sprinter win rate of 40% means sprinters win 40% of their matches. A balanced win rate
+of 38% means balanced players win 38% of their matches. These refer to different groups of matches,
+so adding them together is pointless.
 
