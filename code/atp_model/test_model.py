@@ -1,12 +1,7 @@
 import pandas as pd
-from scipy.stats import binomtest
-import numpy as np
-import matplotlib.pyplot as plt
 import re
-from pathlib import Path
+from scipy.stats import binomtest
 import statsmodels.formula.api as smf
-from sklearn.model_selection import train_test_split
-import shutil
 from sklearn.metrics import accuracy_score, roc_auc_score, log_loss, brier_score_loss
 
 
@@ -170,7 +165,8 @@ def main():
     df.dropna(inplace=True)
     len_non_na = len(df)
     print(
-        f"dropna dropped {len_raw- len_non_na} rows, which is {((len_raw- len_non_na)/len_raw*100):.1f}%."
+        f"dropna dropped {len_raw - len_non_na} rows, which is "
+        f"{((len_raw - len_non_na) / len_raw*100):.1f}%."
     )
     # So we can split test and train based on date.
     df["tourney_date"] = pd.to_datetime(
