@@ -19,7 +19,7 @@ def init_out_dir():
 
 def main():
     print("Building the logit csv…")
-    path = Path(f"{CSV_DIR}/data.csv")
+    path = Path(f"{CSV_DIR}/height_data.csv")
     if not path.is_file():
         print(
             "heigh_data.csv Is missing, please run data_csv.py before running this script."

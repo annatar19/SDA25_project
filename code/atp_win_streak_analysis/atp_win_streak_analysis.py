@@ -128,12 +128,11 @@ def experiment2_1(df):
     plt.title("Win Rate per Win Streak")
     plt.xlabel("Win Streak")
     plt.ylabel("Win Rate")
-    
+
     if not os.path.isfile("./graphs/win_streak/Win_Rate.png"):
         plt.savefig("./graphs/win_streak/Win_Rate.png")
-    
-    plt.show()
 
+    plt.show()
 
 
 def experiment2_2(df):
@@ -158,12 +157,11 @@ def experiment2_2(df):
     plt.title("Win/Loss ratio per Win streak")
     plt.xlabel("Win streak")
     plt.ylabel("W/L ratio")
-    
+
     if not os.path.isfile("./graphs/win_streak/WinLossRatioEps0.5.png"):
         plt.savefig("./graphs/win_streak/WinLossRatioEps0.5.png")
-    
-    plt.show()
 
+    plt.show()
 
 
 # Experiment 3
@@ -198,7 +196,8 @@ def experiment3_clean_and_bin(df):
                                           df_clean['winner_rank_points'],
                                           df_clean['winner_streak'], df_clean['loser_streak'])
 
-    df_clean.to_csv("./data/tennis_atp_data/altered_data/win_streak/experiment3_data.csv", index=False)
+    df_clean.to_csv("./data/tennis_atp_data/altered_data/win_streak/experiment3_data.csv",
+                    index=False)
 
 
 def experiment3_1():
@@ -240,10 +239,10 @@ def plot_experiment3_1(df, models):
     plt.title("Effect of Win Streak by Skill Bin")
     plt.legend()
     plt.grid(True)
-    
+
     if not os.path.isfile("./graphs/win_streak/experiment3 plot.png"):
         plt.savefig("./graphs/win_streak/experiment3 plot.png")
-    
+
     plt.show()
 
 

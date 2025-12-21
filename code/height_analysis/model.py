@@ -70,12 +70,12 @@ def get_formulas():
 def test(train_df, test_df, formulas):
     rows = []
     for formula in formulas:
-        print(f"Formula: {formula}")
+        print(f"\tFormula: {formula}")
         model = smf.logit(formula, data=train_df).fit()
 
         # How probable is our test data according to the model?
         p = model.predict(test_df)
-        print(model.summary())
+        # print(model.summary())
 
         y = test_df["win"].astype(int).values
         y_hat = (p >= 0.5).astype(int)
@@ -87,16 +87,17 @@ def test(train_df, test_df, formulas):
             "brier_score_loss": brier_score_loss(y, p),
             "roc_auc_score": roc_auc_score(y, p),
         }
-        print(f"accuracy: {round(row["accuracy_score"] * 100, 2)}")
-        print(f"logloss: {row["log_loss"]}")
-        print(f"brier: {row["brier_score_loss"]}")
-        print(f"auc: {row["roc_auc_score"]}")
+        print(f"\t\taccuracy: {round(row["accuracy_score"] * 100, 2)}")
+        print(f"\t\tlogloss: {row["log_loss"]}")
+        print(f"\t\tbrier: {row["brier_score_loss"]}")
+        print(f"\t\tauc: {row["roc_auc_score"]}")
 
         rows.append(row)
     return rows
 
 
 def main():
+    print("Starting the training of the models using the various formulas…")
     path = Path(f"{CSV_DIR}/logit.csv")
     if not path.is_file():
         print(
@@ -150,8 +151,10 @@ def main():
         ["formula", "accuracy_score", "log_loss", "brier_score_loss", "roc_auc_score"]
     ]
 
+    print(f"\tWriting the result to {CSV_DIR}/model_results.csv")
     results_df.to_csv(f"{CSV_DIR}/model_results.csv", index=False)
 
+    print("Done with the training of the models using the various formulas…\n")
     return 0
 
 

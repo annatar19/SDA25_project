@@ -178,12 +178,11 @@ def plot_prob_vs_diff_lowess(df, x_col="dif_score", y_col="playerA_win", frac=0.
     plt.title(f"{y_col} vs {x_col} (LOWESS smoothing)")
     plt.grid(alpha=0.3)
     plt.legend()
-    
+
     if not os.path.isfile("./graphs/ranking/Pwin_absdif_smooth.png"):
         plt.savefig("./graphs/ranking/Pwin_absdif_smooth.png")
-    
-    plt.show()
 
+    plt.show()
 
 
 def experiment2(tennis_df, plot=True):
